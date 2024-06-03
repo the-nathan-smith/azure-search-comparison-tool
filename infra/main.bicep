@@ -55,6 +55,10 @@ param principalId string = ''
 @description('Flag to decide where to create roles for current user')
 param createRoleForUser bool = true
 
+param redisCacheName string = ''
+param redisSkuName string = 'Basic'
+param redisSkuCapacity int = 1
+
 var abbrs = loadJsonContent('./abbreviations.json')
 
 // tags that should be applied to all resources.
@@ -208,6 +212,21 @@ module storage 'core/storage/storage-account.bicep' = {
         publicAccess: 'Blob'
       }
     ]
+  }
+}
+
+// Add Azure Redis Cache
+module redisCache 'core/cache/redis-cache.bicep' = {
+  name: 'redis-cache'
+  scope: resourceGroup
+  params: {
+    name: !empty(redisCacheName) ? redisCacheName : 'redis-${resourceToken}'
+    location: location
+    tags: tags
+    sku: {
+      name: redisSkuName
+      capacity: redisSkuCapacity
+    }
   }
 }
 

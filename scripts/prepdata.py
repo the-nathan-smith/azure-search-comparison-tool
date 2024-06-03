@@ -10,6 +10,7 @@ import uuid
 import wget
 import pandas as pd
 import zipfile
+import redis
 
 import openai
 from tenacity import retry, wait_random_exponential, stop_after_attempt
@@ -48,9 +49,20 @@ AZURE_SEARCH_WIKIPEDIA_INDEX_NAME = os.environ.get("AZURE_SEARCH_WIKIPEDIA_INDEX
 AZURE_STORAGE_ACCOUNT = os.environ.get("AZURE_STORAGE_ACCOUNT")
 AZURE_STORAGE_CONTAINER = os.environ.get("AZURE_STORAGE_CONTAINER")
 
+REDIS_HOST = os.environ.get("REDIS_HOST")
+REDIS_PORT = os.environ.get("REDIS_PORT")
+REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD")
+
 open_ai_token_cache = {}
 CACHE_KEY_TOKEN_CRED = "openai_token_cred"
 CACHE_KEY_CREATED_TIME = "created_time"
+
+redis_client = redis.StrictRedis(
+    host=REDIS_HOST,
+    port=REDIS_PORT,
+    password=REDIS_PASSWORD,
+    decode_responses=True
+)
 
 
 def create_and_populate_search_index_text():
@@ -141,18 +153,28 @@ def populate_search_index_text():
 
     print(f"Generating Azure OpenAI embeddings...")
     for item in input_data:
-        item["titleVector"] = generate_text_embeddings(item["title"])
-        item["contentVector"] = generate_text_embeddings(item["content"])
+        item_id = item['id']
+        if redis_client.exists(item_id):
+            print(f"Document with id {item_id} already exists in Redis cache, retrieving vectors.")
+            cached_item = json.loads(redis_client.get(item_id))
+            item["titleVector"] = cached_item["titleVector"]
+            item["contentVector"] = cached_item["contentVector"]
+        else:
+            item["titleVector"] = generate_text_embeddings(item["title"])
+            item["contentVector"] = generate_text_embeddings(item["content"])
+            # Store vectors in Redis
+            redis_client.set(item_id, json.dumps(item))
 
-    print(f"Uploading documents...")
+    print(f"Uploading documents from Redis to Azure Search...")
     search_client = SearchClient(
         endpoint=AZURE_SEARCH_SERVICE_ENDPOINT,
         credential=azure_credential,
         index_name=AZURE_SEARCH_TEXT_INDEX_NAME,
     )
-    search_client.upload_documents(input_data)
+    for item in input_data:
+        search_client.upload_documents([item])
     print(
-        f"Uploaded {len(input_data)} documents to index {AZURE_SEARCH_TEXT_INDEX_NAME}"
+        f"Uploaded documents to index {AZURE_SEARCH_TEXT_INDEX_NAME}"
     )
 
 
@@ -239,7 +261,15 @@ def populate_search_index_images():
                 "imageUrl": url,
                 "imageVector": generate_images_embeddings(url),
             }
-            search_client.upload_documents(doc)
+            if redis_client.exists(doc['id']):
+                print(f"Document with id {doc['id']} already exists in Redis cache, retrieving vectors.")
+                cached_doc = json.loads(redis_client.get(doc['id']))
+                doc["imageVector"] = cached_doc["imageVector"]
+            else:
+                # Store vectors in Redis
+                redis_client.set(doc['id'], json.dumps(doc))
+
+            search_client.upload_documents([doc])
             print(f"{file}")
 
 def create_and_populate_search_index_wikipedia():
@@ -349,7 +379,7 @@ def populate_search_index_wikipedia():
     article_df['vector_id'] = article_df['vector_id'].astype(str)
     documents = article_df.to_dict(orient='records')
 
-    print(f"Uploading documents...")
+    print(f"Uploading documents from Redis to Azure Search...")
     search_client = SearchClient(
         endpoint=AZURE_SEARCH_SERVICE_ENDPOINT,
         credential=azure_credential,
@@ -360,11 +390,20 @@ def populate_search_index_wikipedia():
     batches = [documents[i:i + batch_size] for i in range(0, len(documents), batch_size)]  
   
     for batch in batches:  
-        search_client.upload_documents(batch) 
+        for doc in batch:
+            if redis_client.exists(doc['vector_id']):
+                print(f"Document with id {doc['vector_id']} already exists in Redis cache, retrieving vectors.")
+                cached_doc = json.loads(redis_client.get(doc['vector_id']))
+                doc["titleVector"] = cached_doc["titleVector"]
+                doc["contentVector"] = cached_doc["contentVector"]
+            else:
+                # Store vectors in Redis
+                redis_client.set(doc['vector_id'], json.dumps(doc))
+        
+        search_client.upload_documents(batch)
     print(
-        f"Uploaded {len(documents)} documents to index {AZURE_SEARCH_WIKIPEDIA_INDEX_NAME}"
+        f"Uploaded documents to index {AZURE_SEARCH_WIKIPEDIA_INDEX_NAME}"
     )
-
 
 
 def delete_search_index(name: str):

@@ -58,6 +58,9 @@
     },
     "createRoleForUser": {
       "value": "${CREATE_ROLE_FOR_USER=true}"
+    },
+    "redisCacheName": {
+      "value": "nhsuk-serch-redis-poc"
     }
   }
 }
