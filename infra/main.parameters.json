@@ -41,9 +41,6 @@
     "searchTextIndexName": {
       "value": "${AZURE_SEARCH_TEXT_INDEX=vectortextindex}"
     },
-    "searchImageIndexName": {
-      "value": "${AZURE_SEARCH_IMAGE_INDEX=vectorimageindex}"
-    },
     "searchWikipediaIndexName": {
       "value": "${AZURE_SEARCH_WIKIPEDIA_INDEX=vectorwikipediaindex}"
     },

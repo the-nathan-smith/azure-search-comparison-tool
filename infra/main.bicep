@@ -19,7 +19,6 @@ param searchServiceResourceGroupName string = ''
 param searchServiceResourceGroupLocation string = location
 param searchServiceSkuName string // Set in main.parameters.json
 param searchTextIndexName string // Set in main.parameters.json
-param searchImageIndexName string // Set in main.parameters.json
 param searchWikipediaIndexName string // Set in main.parameters.json
 
 param storageAccountName string = ''
@@ -158,7 +157,6 @@ module backend 'core/host/appservice.bicep' = {
       AZURE_OPENAI_SERVICE: openAi.outputs.name
       AZURE_OPENAI_DEPLOYMENT_NAME: embeddingDeploymentName
       AZURE_SEARCH_SERVICE_ENDPOINT: searchService.outputs.endpoint
-      AZURE_SEARCH_IMAGE_INDEX_NAME: searchImageIndexName 
       AZURE_SEARCH_TEXT_INDEX_NAME: searchTextIndexName
       AZURE_SEARCH_WIKIPEDIA_INDEX_NAME: searchWikipediaIndexName
       AZURE_VISIONAI_ENDPOINT: visionAi.outputs.endpoint
@@ -335,7 +333,6 @@ output AZURE_VISIONAI_KEY string = visionAi.outputs.key
 
 output AZURE_SEARCH_SERVICE_ENDPOINT string = searchService.outputs.endpoint
 output AZURE_SEARCH_TEXT_INDEX_NAME string = searchTextIndexName
-output AZURE_SEARCH_IMAGE_INDEX_NAME string = searchImageIndexName
 output AZURE_SEARCH_WIKIPEDIA_INDEX_NAME string = searchWikipediaIndexName 
 
 output AZURE_STORAGE_ACCOUNT string = storage.outputs.name

@@ -43,7 +43,6 @@ AZURE_VISIONAI_API_VERSION = (
 )
 AZURE_SEARCH_SERVICE_ENDPOINT = os.environ.get("AZURE_SEARCH_SERVICE_ENDPOINT")
 AZURE_SEARCH_TEXT_INDEX_NAME = os.environ.get("AZURE_SEARCH_TEXT_INDEX_NAME")
-AZURE_SEARCH_IMAGE_INDEX_NAME = os.environ.get("AZURE_SEARCH_IMAGE_INDEX_NAME")
 AZURE_SEARCH_WIKIPEDIA_INDEX_NAME = os.environ.get("AZURE_SEARCH_WIKIPEDIA_INDEX_NAME")
 AZURE_STORAGE_ACCOUNT = os.environ.get("AZURE_STORAGE_ACCOUNT")
 AZURE_STORAGE_CONTAINER = os.environ.get("AZURE_STORAGE_CONTAINER")
@@ -155,92 +154,6 @@ def populate_search_index_text():
         f"Uploaded {len(input_data)} documents to index {AZURE_SEARCH_TEXT_INDEX_NAME}"
     )
 
-
-def create_and_populate_search_index_images():
-    created = create_search_index_images()
-    if created:
-        populate_search_index_images()
-
-
-def create_search_index_images():
-    print(f"Ensuring search index {AZURE_SEARCH_IMAGE_INDEX_NAME} exists")
-    index_client = SearchIndexClient(
-        endpoint=AZURE_SEARCH_SERVICE_ENDPOINT,
-        credential=azure_credential,
-    )
-    if AZURE_SEARCH_IMAGE_INDEX_NAME not in index_client.list_index_names():
-        index = SearchIndex(
-            name=AZURE_SEARCH_IMAGE_INDEX_NAME,
-            fields=[
-                SimpleField(
-                    name="id",
-                    type=SearchFieldDataType.String,
-                    key=True,
-                    sortable=True,
-                ),
-                SearchableField(name="title", type=SearchFieldDataType.String),
-                SimpleField(name="imageUrl", type=SearchFieldDataType.String),
-                SearchField(
-                    name="imageVector",
-                    type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
-                    searchable=True,
-                    vector_search_dimensions=1024,
-                    vector_search_configuration="my-vector-config",
-                ),
-            ],
-            vector_search=VectorSearch(
-                algorithm_configurations=[
-                    VectorSearchAlgorithmConfiguration(
-                        name="my-vector-config",
-                        kind="hnsw",
-                        hnsw_parameters=HnswParameters(
-                            m=4, ef_construction=400, ef_search=1000, metric="cosine"
-                        ),
-                    )
-                ]
-            ),
-        )
-        print(f"Creating {AZURE_SEARCH_IMAGE_INDEX_NAME} search index")
-        index_client.create_index(index)
-        return True
-    else:
-        print(f"Search index {AZURE_SEARCH_IMAGE_INDEX_NAME} already exists")
-        return False
-
-
-def populate_search_index_images():
-    search_client = SearchClient(
-        endpoint=AZURE_SEARCH_SERVICE_ENDPOINT,
-        credential=azure_credential,
-        index_name=AZURE_SEARCH_IMAGE_INDEX_NAME,
-    )
-
-    blob_container = BlobServiceClient(
-        account_url=f"https://{AZURE_STORAGE_ACCOUNT}.blob.core.windows.net",
-        credential=azure_credential,
-    ).get_container_client(AZURE_STORAGE_CONTAINER)
-
-    if not blob_container.exists():
-        print(
-            f"Creating blob container {AZURE_STORAGE_CONTAINER} in storage account {AZURE_STORAGE_ACCOUNT}"
-        )
-        blob_container.create_container()
-
-    print(f"Uploading, embedding and indexing images...")
-    for root, dirs, files in os.walk("data/images"):
-        for file in files:
-            with open(os.path.join(root, file), "rb") as data:
-                blob_container.upload_blob(name=file, data=data, overwrite=True)
-
-            url = f"https://{AZURE_STORAGE_ACCOUNT}.blob.core.windows.net/{AZURE_STORAGE_CONTAINER}/{file}"
-            doc = {
-                "id": generate_azuresearch_id(),
-                "title": file,
-                "imageUrl": url,
-                "imageVector": generate_images_embeddings(url),
-            }
-            search_client.upload_documents(doc)
-            print(f"{file}")
 
 def create_and_populate_search_index_wikipedia():
     created = create_search_index_wikipedia()
@@ -458,11 +371,6 @@ if __name__ == "__main__":
     if args.recreate:
         delete_search_index(AZURE_SEARCH_TEXT_INDEX_NAME)
     create_and_populate_search_index_text()
-
-    # Create image index
-    if args.recreate:
-        delete_search_index(AZURE_SEARCH_IMAGE_INDEX_NAME)
-    create_and_populate_search_index_images()
 
     # Create wikipedia index
     if args.recreate:
