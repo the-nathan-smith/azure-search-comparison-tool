@@ -20,13 +20,11 @@ class SearchText:
         self.logger = logging.getLogger(__name__)
         self.results = results
         self.approaches = approaches
-        self.approach = {
-             "text": "Text Only (BM25)",
-             "texttitle": "Text Only (BM25) - Title",
-             "vec": "Vectors Only (ANN)",
-             "hs": "Vectors + Text (Hybrid Search)",
-             "hssr": "Hybrid + Semantic Reranking"
-        }
+        # self.approach = {}
+        # for approach in approaches.get_approaches():
+        #     key = approach['key']
+        #     title = approach['title']
+        #     self.approach[key] = title
 
     async def search(
         self,
@@ -42,12 +40,11 @@ class SearchText:
         data_set: str = "sample",
         approach: str = "undefined"
     ):
-
         # Vectorize query
         query_vector = query_vector if use_vector_search else None
 
         # Set vector field names
-        vector_field_names = self.vector_field_names.split(",")[0] if approach=="texttitle" else self.vector_field_names
+        vector_field_names = self.vector_field_names
 
         # Set text query for no-vector, semantic and 'Hybrid' searches
         query_text = (
