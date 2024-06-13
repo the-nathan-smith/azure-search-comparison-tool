@@ -10,10 +10,8 @@ class SearchText:
     def __init__(self, 
                 search_client: SearchClient,
                 results: Results,
-                approaches: Approaches,
-                semantic_configuration_name="my-semantic-config"):
+                approaches: Approaches):
         self.search_client = search_client
-        self.semantic_configuration_name = semantic_configuration_name
         self.ranking = Ranking()
         self.logger = logging.getLogger(__name__)
         self.results = results
@@ -22,8 +20,6 @@ class SearchText:
     async def search(
         self,
         query: str,
-        use_hybrid_search: bool = False,
-        use_semantic_ranker: bool = False,
         use_semantic_captions: bool = False,
         select: str | None = None,
         k: int | None = None,
@@ -36,6 +32,8 @@ class SearchText:
         approach_config = self.approaches.get(approach)
 
         use_vector_search = approach_config["use_vector_search"]
+        use_hybrid_search = approach_config["use_hybrid_search"] if use_vector_search else False
+        use_semantic_ranker = approach_config["use_semantic_ranker"] if use_vector_search else False
 
         # Vectorize query
         query_vector = query_vector if use_vector_search else None
@@ -53,11 +51,7 @@ class SearchText:
         # Semantic ranker options
         query_type = QueryType.SEMANTIC if use_semantic_ranker else QueryType.SIMPLE
 
-        semantic_configuration = (
-            self.semantic_configuration_name
-            if use_semantic_ranker
-            else None
-        )
+        semantic_configuration = approach_config["semantic_configuration_name"] if use_semantic_ranker else None
 
         # Semantic caption options
         query_caption = QueryCaptionType.EXTRACTIVE if use_semantic_captions else None
@@ -115,7 +109,7 @@ class SearchText:
             self.logger.debug(f"{r["@search.score"]} - {r["id"]}")
 
         if can_calc_ncdg:
-            self.evaluate_well_known_search_query(query, approach, results)
+            self.evaluate_well_known_search_query(query, approach_config, results)
         else:
             self.store_query_results(query, approach, results)
 
@@ -138,7 +132,7 @@ class SearchText:
         self.results.persist_results(query, approach, actual_results)
         
     
-    def evaluate_well_known_search_query(self, query: str, approach: str, results: list):
+    def evaluate_well_known_search_query(self, query: str, approach_config, results: list):
         ordered_result_ids = []
 
         actual_results = []
@@ -149,7 +143,7 @@ class SearchText:
             
         ranking_result = self.ranking.rank_results(query, ordered_result_ids)
 
-        self.logger.info(f"{self.approach[approach]}  => NDCG:{ranking_result["ndcg"]}")
+        self.logger.info(f"{approach_config["title"]}  => NDCG:{ranking_result["ndcg"]}")
 
         for key, value in list(ranking_result["result_rankings"].items()):
 
@@ -165,4 +159,4 @@ class SearchText:
             print(f"{key}->{value}")
             ideal_results.append({"id": key, "relevance": value})
 
-        self.results.persist_ranked_results(query, approach, ranking_result["ndcg"], ideal_results, actual_results)
+        self.results.persist_ranked_results(query, approach_config["key"], ranking_result["ndcg"], ideal_results, actual_results)

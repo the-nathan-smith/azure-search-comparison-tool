@@ -1,4 +1,4 @@
-export type ApproachKey = "text" | "vec" | "hs" | "hssr";
+export type ApproachKey = "text" | "vec" | "vec_roshaan" | "hs" | "hssr";
 
 export interface Approach {
     key: ApproachKey;
@@ -7,15 +7,13 @@ export interface Approach {
 
 export interface TextSearchRequest {
     query: string;
-    hybridSearch?: boolean;
     select?: string;
     k?: number;
     filter?: string;
-    useSemanticRanker?: boolean;
     useSemanticCaptions?: boolean;
     queryVector?: number[];
     dataSet?: string;
-    approach: "text" | "vec" | "hs" | "hssr" | undefined;
+    approach: "text" | "vec" | "vec_roshaan" | "hs" | "hssr" | undefined;
 }
 
 export interface SearchResponse<T extends SearchResult> {

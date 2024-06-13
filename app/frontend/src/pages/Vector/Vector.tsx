@@ -17,7 +17,7 @@ const Vector: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [resultCards, setResultCards] = useState<ResultCard[]>([]);
     const [isConfigPanelOpen, setIsConfigPanelOpen] = useState<boolean>(false);
-    const [selectedApproachKeys, setSelectedApproachKeys] = useState<ApproachKey[]>(["text", "vec", "hs", "hssr"]);
+    const [selectedApproachKeys, setSelectedApproachKeys] = useState<ApproachKey[]>(["text", "vec", "vec_roshaan", "hs", "hssr"]);
     const [useSemanticCaptions, setUseSemanticCaptions] = useState<boolean>(false);
     const [hideScores, setHideScores] = React.useState<boolean>(true);
     const [errors, setErrors] = React.useState<string[]>([]);
@@ -27,6 +27,7 @@ const Vector: React.FC = () => {
         () => [
             { key: "text", title: "Text Only (BM25)" },
             { key: "vec", title: "Vectors Only (ANN)" },
+            { key: "vec_roshaan", title: "Roshaan's Title Vector Only (ANN)" },
             { key: "hs", title: "Vectors + Text (Hybrid Search)" },
             { key: "hssr", title: "Hybrid + Semantic Reranking" }
         ],
@@ -59,7 +60,7 @@ const Vector: React.FC = () => {
 
             let searchApproachKeys = selectedApproachKeys;
             if (selectedApproachKeys.length === 0) {
-                searchApproachKeys = ["text", "vec", "hs", "hssr"];
+                searchApproachKeys = ["text", "vec", "vec_roshaan", "hs", "hssr"];
             }
             setSelectedApproachKeys(searchApproachKeys);
 

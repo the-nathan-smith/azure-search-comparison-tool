@@ -28,7 +28,9 @@
         ],
         "use_vector_search": true,
         "data_set": "conditions",
-        "vector_field_names": "titleVector,descriptionVector"
+        "vector_field_names": "titleVector,descriptionVector",
+        "use_hybrid_search": false,
+        "use_semantic_ranker": false
     },
     {
         "key": "vec_roshaan",
@@ -44,7 +46,9 @@
         ],
         "use_vector_search": true,
         "data_set": "conditions",
-        "vector_field_names": "titleVector"
+        "vector_field_names": "descriptionVector",
+        "use_hybrid_search": false,
+        "use_semantic_ranker": false
     },
     {
         "key": "hs",
@@ -62,7 +66,9 @@
         ],
         "use_vector_search": true,
         "data_set": "conditions",
-        "vector_field_names": "titleVector,descriptionVector"
+        "vector_field_names": "titleVector,descriptionVector",
+        "use_hybrid_search": true,
+        "use_semantic_ranker": false
     },
     {
         "key": "hssr",
@@ -80,7 +86,10 @@
         ],
         "use_vector_search": true,
         "data_set": "conditions",
-        "vector_field_names": "titleVector,descriptionVector"
+        "vector_field_names": "titleVector,descriptionVector",
+        "use_hybrid_search": true,
+        "use_semantic_ranker": true,
+        "semantic_configuration_name": "basic-semantic-config"
     },
     {
         "key": "algolia",

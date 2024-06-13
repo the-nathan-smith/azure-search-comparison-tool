@@ -76,17 +76,10 @@ async def search_text():
 
         else:
 
-            hybrid_search = (
-                request_json["hybridSearch"] if request_json.get("hybridSearch") else False
-            )
             select = request_json["select"] if request_json.get("select") else None
             k = request_json["k"] if request_json.get("k") else 10
             filter = request_json["filter"] if request_json.get("filter") else None
-            use_semantic_ranker = (
-                request_json["useSemanticRanker"]
-                if request_json.get("useSemanticRanker")
-                else False
-            )
+
             use_semantic_captions = (
                 request_json["useSemanticCaptions"]
                 if request_json.get("useSemanticCaptions")
@@ -101,8 +94,6 @@ async def search_text():
 
             r = await current_app.config[indexConfig].search(
                 query=query,
-                use_hybrid_search=hybrid_search,
-                use_semantic_ranker=use_semantic_ranker,
                 use_semantic_captions=use_semantic_captions,
                 select=select,
                 k=k,
@@ -200,13 +191,11 @@ async def setup_clients():
     current_app.config[CONFIG_SEARCH_CONDITIONS_INDEX] = SearchText(
         search_client_conditions,
         results,
-        approaches,
-        semantic_configuration_name="basic-semantic-config")
+        approaches)
     current_app.config[CONFIG_SEARCH_COMBINED_INDEX] = SearchText(
         search_client_combined,
         results,
-        approaches,
-        semantic_configuration_name="basic-semantic-config")
+        approaches)
 
 def create_app():
     app = Quart(__name__)

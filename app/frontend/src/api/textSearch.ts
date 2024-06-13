@@ -2,7 +2,7 @@ import axios from "axios";
 import { SearchResponse, TextSearchRequest, TextSearchResult } from "./types";
 
 export const getTextSearchResults = async (
-    approach: "text" | "vec" | "hs" | "hssr" | undefined,
+    approach: "text" | "vec" | "vec_roshaan" | "hs" | "hssr" | undefined,
     searchQuery: string,
     useSemanticCaptions: boolean,
     dataSet?: string,
@@ -13,22 +13,15 @@ export const getTextSearchResults = async (
     const requestBody: TextSearchRequest = {
         query: searchQuery,
         select: select,
-        hybridSearch: false,
         dataSet: dataSet,
         approach: approach
     };
 
-    if (approach === "vec" || approach === "hs" || approach === "hssr") {
+    if (approach === "vec" || approach === "vec_roshaan" || approach === "hs" || approach === "hssr") {
         requestBody.k = k;
         requestBody.queryVector = queryVector;
 
-        if (approach === "hs") {
-            requestBody.hybridSearch = true;
-        }
-
         if (approach === "hssr") {
-            requestBody.hybridSearch = true;
-            requestBody.useSemanticRanker = true;
             requestBody.useSemanticCaptions = useSemanticCaptions;
         }
     }
