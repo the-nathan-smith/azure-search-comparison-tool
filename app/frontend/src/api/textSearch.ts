@@ -1,8 +1,8 @@
 import axios from "axios";
-import { SearchResponse, TextSearchRequest, TextSearchResult } from "./types";
+import { Approach, SearchResponse, TextSearchRequest, TextSearchResult } from "./types";
 
 export const getTextSearchResults = async (
-    approach: string,
+    approach: Approach,
     searchQuery: string,
     useSemanticCaptions: boolean,
     dataSet?: string,
@@ -14,14 +14,14 @@ export const getTextSearchResults = async (
         query: searchQuery,
         select: select,
         dataSet: dataSet,
-        approach: approach
+        approach: approach.key
     };
 
-    if (approach === "vec" || approach === "vec_roshaan" || approach === "hs" || approach === "hssr") {
+    if (approach.use_vector_search ?? false) {
         requestBody.k = k;
         requestBody.queryVector = queryVector;
 
-        if (approach === "hssr") {
+        if (approach.key === "hssr") {
             requestBody.useSemanticCaptions = useSemanticCaptions;
         }
     }

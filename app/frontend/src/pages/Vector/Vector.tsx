@@ -69,17 +69,13 @@ const Vector: React.FC = () => {
             setTextQueryVector([]);
             setLoading(true);
 
-            let searchApproachKeys = selectedApproachKeys;
-            if (selectedApproachKeys.length === 0) {
-                searchApproachKeys = ["text"];
-            }
-            setSelectedApproachKeys(searchApproachKeys);
+            const searchApproaches = allApproaches.filter(a => selectedApproachKeys.includes(a.key)).map(a => a);
 
             let resultsList: ResultCard[] = [];
             let searchErrors: string[] = [];
             let queryVector: number[] = [];
 
-            if (!(searchApproachKeys.length === 1 && searchApproachKeys[0] === "text")) {
+            if (searchApproaches.filter(a => a.use_vector_search === true).length > 0) {
                 try {
                     queryVector = await getEmbeddings(query);
                     setTextQueryVector(queryVector);
@@ -92,11 +88,11 @@ const Vector: React.FC = () => {
             }
 
             Promise.allSettled(
-                searchApproachKeys.map(async approachKey => {
-                    const results = await getTextSearchResults(approachKey, query, useSemanticCaptions, selectedDatasetKey, queryVector);
+                searchApproaches.map(async approach => {
+                    const results = await getTextSearchResults(approach, query, useSemanticCaptions, selectedDatasetKey, queryVector);
                     const searchResults = results.results;
                     const resultCard: ResultCard = {
-                        approachKey,
+                        approachKey: approach.key,
                         searchResults
                     };
                     return resultCard;

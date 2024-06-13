@@ -2,6 +2,7 @@ export interface Approach {
     key: string;
     title: string;
     data_set?: string;
+    use_vector_search?: boolean;
 }
 
 export interface TextSearchRequest {
