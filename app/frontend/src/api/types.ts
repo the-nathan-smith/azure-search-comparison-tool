@@ -7,7 +7,6 @@ export interface Approach {
 
 export interface TextSearchRequest {
     query: string;
-    vectorSearch?: boolean;
     hybridSearch?: boolean;
     select?: string;
     k?: number;
@@ -37,9 +36,7 @@ interface SearchCaptions {
 export interface TextSearchResult extends SearchResult {
     id: string;
     title: string;
-    titleVector: number[];
     content: string;
-    contentVector: number[];
     category?: string;
     url?: string;
 }

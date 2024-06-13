@@ -10,7 +10,9 @@
         "indexFields": [
             "title",
             "description"
-        ]
+        ],
+        "use_vector_search": false,
+        "data_set": "conditions"
     },
     {
         "key": "vec",
@@ -23,7 +25,26 @@
         "indexFields": [
             "titleVector",
             "descriptionVector"
-        ]
+        ],
+        "use_vector_search": true,
+        "data_set": "conditions",
+        "vector_field_names": "titleVector,descriptionVector"
+    },
+    {
+        "key": "vec_roshaan",
+        "title": "Roshaan's Title Vector Only (ANN)",
+        "description": "Uses the `text-embedding-ada-002` OpenAI model to vectorize the source text, but only uses the title field in the search query.",
+        "documentFieldsAppliedTo": [
+            "title",
+            "description"
+        ],
+        "indexFields": [
+            "titleVector",
+            "descriptionVector"
+        ],
+        "use_vector_search": true,
+        "data_set": "conditions",
+        "vector_field_names": "titleVector"
     },
     {
         "key": "hs",
@@ -38,7 +59,10 @@
             "description",
             "titleVector",
             "descriptionVector"
-        ]
+        ],
+        "use_vector_search": true,
+        "data_set": "conditions",
+        "vector_field_names": "titleVector,descriptionVector"
     },
     {
         "key": "hssr",
@@ -53,7 +77,10 @@
             "description",
             "titleVector",
             "descriptionVector"
-        ]
+        ],
+        "use_vector_search": true,
+        "data_set": "conditions",
+        "vector_field_names": "titleVector,descriptionVector"
     },
     {
         "key": "algolia",

@@ -13,14 +13,12 @@ export const getTextSearchResults = async (
     const requestBody: TextSearchRequest = {
         query: searchQuery,
         select: select,
-        vectorSearch: false,
         hybridSearch: false,
         dataSet: dataSet,
         approach: approach
     };
 
     if (approach === "vec" || approach === "hs" || approach === "hssr") {
-        requestBody.vectorSearch = true;
         requestBody.k = k;
         requestBody.queryVector = queryVector;
 

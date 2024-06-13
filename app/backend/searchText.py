@@ -11,25 +11,17 @@ class SearchText:
                 search_client: SearchClient,
                 results: Results,
                 approaches: Approaches,
-                semantic_configuration_name="my-semantic-config",
-                vector_field_names="titleVector,contentVector"):
+                semantic_configuration_name="my-semantic-config"):
         self.search_client = search_client
         self.semantic_configuration_name = semantic_configuration_name
-        self.vector_field_names = vector_field_names
         self.ranking = Ranking()
         self.logger = logging.getLogger(__name__)
         self.results = results
         self.approaches = approaches
-        # self.approach = {}
-        # for approach in approaches.get_approaches():
-        #     key = approach['key']
-        #     title = approach['title']
-        #     self.approach[key] = title
 
     async def search(
         self,
         query: str,
-        use_vector_search: bool = False,
         use_hybrid_search: bool = False,
         use_semantic_ranker: bool = False,
         use_semantic_captions: bool = False,
@@ -37,14 +29,19 @@ class SearchText:
         k: int | None = None,
         filter: str | None = None,
         query_vector: list[float] | None = None,
-        data_set: str = "sample",
         approach: str = "undefined"
     ):
+        # get approach config
+
+        approach_config = self.approaches.get(approach)
+
+        use_vector_search = approach_config["use_vector_search"]
+
         # Vectorize query
         query_vector = query_vector if use_vector_search else None
 
         # Set vector field names
-        vector_field_names = self.vector_field_names
+        vector_field_names = approach_config["vector_field_names"] if use_vector_search else None
 
         # Set text query for no-vector, semantic and 'Hybrid' searches
         query_text = (
@@ -104,44 +101,23 @@ class SearchText:
                 else None
             )
 
-            if data_set == "sample":
-                results.append(
-                    {
-                        "@search.score": r["@search.score"],
-                        "@search.reranker_score": r["@search.reranker_score"],
-                        "@search.captions": captions,
-                        "id": r["id"],
-                        "title": r["title"],
-                        "titleVector": r["titleVector"],
-                        "content": r["content"],
-                        "contentVector": r["contentVector"],
-                        "category": r["category"],
-                    }
-                )
-            elif data_set == "conditions":
-                result_entry = {
+            results.append(
+                {
                     "@search.score": r["@search.score"],
                     "@search.reranker_score": r["@search.reranker_score"],
                     "@search.captions": captions,
                     "id": r["id"],
                     "title": r["title"],
-                    "content": r["description"],
-                    "titleVector": r["titleVector"],
+                    "content": r["description"]
                 }
+            )
 
-                if "descriptionVector" in r:
-                    result_entry["descriptionVector"] = r["descriptionVector"]
+            self.logger.debug(f"{r["@search.score"]} - {r["id"]}")
 
-                results.append(result_entry)
-
-                self.logger.debug(f"{r["@search.score"]} - {r["id"]}")
-
-        if data_set == "conditions":
-
-            if can_calc_ncdg:
-                self.evaluate_well_known_search_query(query, approach, results)
-            else:
-                self.store_query_results(query, approach, results)
+        if can_calc_ncdg:
+            self.evaluate_well_known_search_query(query, approach, results)
+        else:
+            self.store_query_results(query, approach, results)
 
         return {
             "results": results,

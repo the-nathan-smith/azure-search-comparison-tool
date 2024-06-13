@@ -76,9 +76,6 @@ async def search_text():
 
         else:
 
-            vector_search = (
-                request_json["vectorSearch"] if request_json.get("vectorSearch") else False
-            )
             hybrid_search = (
                 request_json["hybridSearch"] if request_json.get("hybridSearch") else False
             )
@@ -104,7 +101,6 @@ async def search_text():
 
             r = await current_app.config[indexConfig].search(
                 query=query,
-                use_vector_search=vector_search,
                 use_hybrid_search=hybrid_search,
                 use_semantic_ranker=use_semantic_ranker,
                 use_semantic_captions=use_semantic_captions,
@@ -112,7 +108,6 @@ async def search_text():
                 k=k,
                 filter=filter,
                 query_vector=query_vector,
-                data_set=data_set,
                 approach=approach
             )
 
@@ -206,14 +201,12 @@ async def setup_clients():
         search_client_conditions,
         results,
         approaches,
-        semantic_configuration_name="basic-semantic-config",
-        vector_field_names="titleVector,descriptionVector")
+        semantic_configuration_name="basic-semantic-config")
     current_app.config[CONFIG_SEARCH_COMBINED_INDEX] = SearchText(
         search_client_combined,
         results,
         approaches,
-        semantic_configuration_name="basic-semantic-config",
-        vector_field_names="title_vector,description_vector,short_descriptions_vector,content_vector")
+        semantic_configuration_name="basic-semantic-config")
 
 def create_app():
     app = Quart(__name__)
