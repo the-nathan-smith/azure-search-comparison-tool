@@ -1,8 +1,7 @@
-export type ApproachKey = "text" | "vec" | "vec_roshaan" | "hs" | "hssr";
-
 export interface Approach {
-    key: ApproachKey;
+    key: string;
     title: string;
+    data_set?: string;
 }
 
 export interface TextSearchRequest {
@@ -13,7 +12,7 @@ export interface TextSearchRequest {
     useSemanticCaptions?: boolean;
     queryVector?: number[];
     dataSet?: string;
-    approach: "text" | "vec" | "vec_roshaan" | "hs" | "hssr" | undefined;
+    approach: string;
 }
 
 export interface SearchResponse<T extends SearchResult> {

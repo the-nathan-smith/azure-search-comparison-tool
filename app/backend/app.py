@@ -39,6 +39,10 @@ async def static_file(path):
     return await bp.send_static_file(path)
 
 
+@bp.route("/approaches", methods=["GET"])
+def get_approaches():
+    return Approaches("./data/approaches.json").get_approaches()
+
 @bp.route("/embedQuery", methods=["POST"])
 async def embed_query():
     try:

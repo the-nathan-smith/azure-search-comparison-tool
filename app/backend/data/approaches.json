@@ -3,14 +3,6 @@
         "key": "text",
         "title": "Text Only (BM25)",
         "description": "Uses the Best Match 25 full text search algorithm with default `k1` and `b` parameters. `k1` controls the scaling function between the term frequency of each matching terms and the final relevance score of a document-query pair (0 - 3). By default, a value of 1.2 is used. `b` controls how the length of a document affects the relevance score (0 - 1). By default, a value of 0.75 is used.",
-        "documentFieldsAppliedTo": [
-            "title",
-            "description"
-        ],
-        "indexFields": [
-            "title",
-            "description"
-        ],
         "use_vector_search": false,
         "data_set": "conditions"
     },
@@ -18,14 +10,6 @@
         "key": "vec",
         "title": "Vectors Only (ANN)",
         "description": "Uses the `text-embedding-ada-002` OpenAI model to vectorize the source text.",
-        "documentFieldsAppliedTo": [
-            "title",
-            "description"
-        ],
-        "indexFields": [
-            "titleVector",
-            "descriptionVector"
-        ],
         "use_vector_search": true,
         "data_set": "conditions",
         "vector_field_names": "titleVector,descriptionVector",
@@ -36,14 +20,6 @@
         "key": "vec_roshaan",
         "title": "Roshaan's Title Vector Only (ANN)",
         "description": "Uses the `text-embedding-ada-002` OpenAI model to vectorize the source text, but only uses the title field in the search query.",
-        "documentFieldsAppliedTo": [
-            "title",
-            "description"
-        ],
-        "indexFields": [
-            "titleVector",
-            "descriptionVector"
-        ],
         "use_vector_search": true,
         "data_set": "conditions",
         "vector_field_names": "descriptionVector",
@@ -54,16 +30,6 @@
         "key": "hs",
         "title": "Vectors + Text (Hybrid Search)",
         "description": "",
-        "documentFieldsAppliedTo": [
-            "title",
-            "description"
-        ],
-        "indexFields": [
-            "title",
-            "description",
-            "titleVector",
-            "descriptionVector"
-        ],
         "use_vector_search": true,
         "data_set": "conditions",
         "vector_field_names": "titleVector,descriptionVector",
@@ -74,16 +40,6 @@
         "key": "hssr",
         "title": "Hybrid + Semantic Reranking",
         "description": "",
-        "documentFieldsAppliedTo": [
-            "title",
-            "description"
-        ],
-        "indexFields": [
-            "title",
-            "description",
-            "titleVector",
-            "descriptionVector"
-        ],
         "use_vector_search": true,
         "data_set": "conditions",
         "vector_field_names": "titleVector,descriptionVector",
@@ -95,5 +51,12 @@
         "key": "algolia",
         "title": "Algolia",
         "description": "This approach scrapes the NHS.UK site performing the required search query in this way exposing the top 10 Algolia search results for comparison purposes"
+    },
+    {
+        "key": "text_2",
+        "title": "Text Only (BM25)",
+        "description": "Uses the Best Match 25 full text search algorithm with default `k1` and `b` parameters. `k1` controls the scaling function between the term frequency of each matching terms and the final relevance score of a document-query pair (0 - 3). By default, a value of 1.2 is used. `b` controls how the length of a document affects the relevance score (0 - 1). By default, a value of 0.75 is used. Index uses a full set of data from the data source",
+        "use_vector_search": false,
+        "data_set": "combined"
     }
 ]

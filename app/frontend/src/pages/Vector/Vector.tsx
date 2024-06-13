@@ -1,11 +1,12 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { Checkbox, DefaultButton, Dropdown, IDropdownOption, MessageBar, MessageBarType, Panel, Spinner, Stack, TextField, Toggle } from "@fluentui/react";
 import { DismissCircle24Filled, Search24Regular, Settings20Regular } from "@fluentui/react-icons";
 
 import styles from "./Vector.module.css";
 
-import { TextSearchResult, Approach, ResultCard, ApproachKey, AxiosErrorResponseData } from "../../api/types";
+import { TextSearchResult, Approach, ResultCard, AxiosErrorResponseData } from "../../api/types";
 import { getEmbeddings, getTextSearchResults } from "../../api/textSearch";
+import { getApproaches } from "../../api/approaches";
 import SampleCard from "../../components/SampleCards";
 import { AxiosError } from "axios";
 
@@ -17,22 +18,32 @@ const Vector: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [resultCards, setResultCards] = useState<ResultCard[]>([]);
     const [isConfigPanelOpen, setIsConfigPanelOpen] = useState<boolean>(false);
-    const [selectedApproachKeys, setSelectedApproachKeys] = useState<ApproachKey[]>(["text", "vec", "vec_roshaan", "hs", "hssr"]);
+    const [selectedApproachKeys, setSelectedApproachKeys] = useState<string[]>(["text"]);
     const [useSemanticCaptions, setUseSemanticCaptions] = useState<boolean>(false);
     const [hideScores, setHideScores] = React.useState<boolean>(true);
     const [errors, setErrors] = React.useState<string[]>([]);
     const [selectedDatasetKey, setSelectedDatasetKey] = React.useState<string>("conditions");
 
-    const approaches: Approach[] = useMemo(
-        () => [
-            { key: "text", title: "Text Only (BM25)" },
-            { key: "vec", title: "Vectors Only (ANN)" },
-            { key: "vec_roshaan", title: "Roshaan's Title Vector Only (ANN)" },
-            { key: "hs", title: "Vectors + Text (Hybrid Search)" },
-            { key: "hssr", title: "Hybrid + Semantic Reranking" }
-        ],
-        []
-    );
+    const [allApproaches, setAllApproaches] = React.useState<Approach[]>([]);
+
+    useEffect(() => {
+        async function loadApproaches() {
+            // You can await here
+            const all_approaches = await getApproaches();
+
+            console.log(JSON.stringify(all_approaches));
+
+            setAllApproaches(all_approaches);
+            // ...
+        }
+        loadApproaches().catch(() => console.log("oh no!"));
+    }, []);
+
+    const getApproachesForDataSet = useCallback(() => {
+        return allApproaches.filter(a => a.data_set == selectedDatasetKey).map(a => a);
+    }, [allApproaches, selectedDatasetKey]);
+
+    const approaches: Approach[] = useMemo(() => getApproachesForDataSet(), [getApproachesForDataSet]);
 
     const Datasets: IDropdownOption[] = useMemo(
         () => [
@@ -60,7 +71,7 @@ const Vector: React.FC = () => {
 
             let searchApproachKeys = selectedApproachKeys;
             if (selectedApproachKeys.length === 0) {
-                searchApproachKeys = ["text", "vec", "vec_roshaan", "hs", "hssr"];
+                searchApproachKeys = ["text"];
             }
             setSelectedApproachKeys(searchApproachKeys);
 
