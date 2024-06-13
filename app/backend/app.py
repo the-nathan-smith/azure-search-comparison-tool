@@ -20,7 +20,6 @@ CONFIG_OPENAI_SERVICE = "openai_service"
 CONFIG_OPENAI_CLIENT = "openai_client"
 CONFIG_OPENAI_TOKEN_CREATED_TIME = "openai_token_created_at"
 CONFIG_CREDENTIAL = "azure_credential"
-CONFIG_EMBEDDING_DEPLOYMENT = "embedding_deployment"
 CONFIG_SEARCH_CONDITIONS_INDEX = "search_conditions"
 CONFIG_SEARCH_COMBINED_INDEX = "search_combined"
 CONFIG_INDEX_CONDITIONS = "index_conditions"
@@ -48,12 +47,15 @@ async def embed_query():
     try:
         request_json = await request.get_json()
         query = request_json["query"]
+        approach = request_json["approach"]
+
+        a = Approaches("./data/approaches.json").get(approach)
 
         openai_client = current_app.config[CONFIG_OPENAI_CLIENT]
 
         response = openai_client.embeddings.create(
             input = query,
-            model = current_app.config[CONFIG_EMBEDDING_DEPLOYMENT]
+            model = a["open_ai_deployment_name"]
         )
 
         return response.data[0].embedding, 200
@@ -148,9 +150,6 @@ async def gzip_response(response):
 async def setup_clients():
     # Replace these with your own values, either in environment variables or directly here
     AZURE_OPENAI_SERVICE = os.getenv("AZURE_OPENAI_SERVICE")
-    AZURE_OPENAI_DEPLOYMENT_NAME = (
-        os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME") or "embedding"
-    )
     AZURE_SEARCH_SERVICE_ENDPOINT = os.getenv("AZURE_SEARCH_SERVICE_ENDPOINT")
     AZURE_SEARCH_CONDITIONS_INDEX_NAME = os.getenv("AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME")
     AZURE_SEARCH_COMBINED_INDEX_NAME = os.getenv("AZURE_SEARCH_NHS_COMBINED_INDEX_NAME")
@@ -190,7 +189,6 @@ async def setup_clients():
     current_app.config[CONFIG_CREDENTIAL] = azure_credential
     current_app.config[CONFIG_OPENAI_CLIENT] = openai_client
     current_app.config[CONFIG_OPENAI_TOKEN_CREATED_TIME] = time.time()
-    current_app.config[CONFIG_EMBEDDING_DEPLOYMENT] = AZURE_OPENAI_DEPLOYMENT_NAME
     current_app.config[CONFIG_ALGOLIA_SEARCH] = AlgoliaSiteSearch(results)
     current_app.config[CONFIG_SEARCH_CONDITIONS_INDEX] = SearchText(
         search_client_conditions,

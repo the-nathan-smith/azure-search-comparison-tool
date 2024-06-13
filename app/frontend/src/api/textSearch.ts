@@ -31,7 +31,7 @@ export const getTextSearchResults = async (
     return response.data;
 };
 
-export const getEmbeddings = async (query: string): Promise<number[]> => {
-    const response = await axios.post<number[]>("/embedQuery", { query });
+export const getEmbeddings = async (query: string, approach: string): Promise<number[]> => {
+    const response = await axios.post<number[]>("/embedQuery", { query, approach });
     return response.data;
 };

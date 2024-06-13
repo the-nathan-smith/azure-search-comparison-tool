@@ -76,8 +76,10 @@ const Vector: React.FC = () => {
             let queryVector: number[] = [];
 
             if (searchApproaches.filter(a => a.use_vector_search === true).length > 0) {
+                const approachKey = searchApproaches.filter(a => a.use_vector_search === true).map(a => a)[0].key;
+
                 try {
-                    queryVector = await getEmbeddings(query);
+                    queryVector = await getEmbeddings(query, approachKey);
                     setTextQueryVector(queryVector);
                 } catch (e) {
                     searchErrors = searchErrors.concat(`Failed to generate embeddings ${String(e)}`);
