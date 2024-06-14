@@ -11,6 +11,7 @@ import uuid
 import redis
 import logging
 import numpy as np
+from keybert import KeyBERT
 
 from openai import AzureOpenAI
 #from tenacity import retry, wait_random_exponential, stop_after_attempt
@@ -349,6 +350,11 @@ def create_search_index_nhs_combined_data() -> bool:
                     searchable=True,
                     vector_search_dimensions=3072,
                     vector_search_profile_name="test-vector-profile"
+                ),
+                SearchField(
+                    name="keywords",
+                    type=SearchFieldDataType.Collection(SearchFieldDataType.String),
+                    searchable=False
                 )
             ],
             vector_search=VectorSearch(
@@ -360,12 +366,33 @@ def create_search_index_nhs_combined_data() -> bool:
             semantic_search=SemanticSearch(
                 configurations=[
                     SemanticConfiguration(
-                        name="martin-test-semantic-config",
+                        name="default-semantic-config",
+                        prioritized_fields=SemanticPrioritizedFields(
+                            title_field=SemanticField(field_name="title"),
+                            content_fields=[
+                                SemanticField(field_name="description")
+                            ]
+                        ),
+                    ),
+                    SemanticConfiguration(
+                        name="semantic-config-content",
                         prioritized_fields=SemanticPrioritizedFields(
                             title_field=SemanticField(field_name="title"),
                             content_fields=[
                                 SemanticField(field_name="description"),
                                 SemanticField(field_name="short_descriptions")
+                            ]
+                        ),
+                    ),
+                    SemanticConfiguration(
+                        name="semantic-config-keywords",
+                        prioritized_fields=SemanticPrioritizedFields(
+                            title_field=SemanticField(field_name="title"),
+                            content_fields=[
+                                SemanticField(field_name="description")
+                            ],
+                            keyword_fields=[
+                                SemanticField(field_name="keywords")
                             ]
                         ),
                     )
@@ -402,6 +429,8 @@ def populate_search_index_nhs_combined_data():
         azure_endpoint = f"https://{AZURE_OPENAI_SERVICE}.openai.azure.com" 
     )
 
+    kw_model = KeyBERT()
+
     with open("data/conditions_1.json", "r", encoding="utf-8") as file:
         conditions_items = json.load(file)
 
@@ -415,7 +444,7 @@ def populate_search_index_nhs_combined_data():
     batched_treated_items = []
     batch_size = 12
 
-    for item in items:
+    for item in items[:20]:
 
         treated_item = {
             "id": item["id"],
@@ -481,6 +510,25 @@ def populate_search_index_nhs_combined_data():
             vector_property_names=["title_vector", "description_vector", "short_descriptions_vector", "content_vector"],
             item=treated_item,
             deployment_name=AZURE_OPENAI_DEPLOYMENT_LARGE_NAME)
+        
+
+        str_title_desc = " ".join(treated_item["title"], treated_item["description"])
+        str_short_descs = " ".join(treated_item["short_descriptions"]) if len(treated_item["short_descriptions"]) > 0 else ""
+        str_content = " ".join(treated_item["content"]) if len(treated_item["content"]) > 0 else ""
+
+        keywords = kw_model.extract_keywords(str_title_desc + " " + str_short_descs + " " + str_content, top_n=20)
+
+        print(keywords)
+
+        selected_keywords = []
+
+        for kw in keywords:
+            if kw[1] > 0.25:
+                selected_keywords.append(kw[0])
+
+        print(selected_keywords)
+
+        treated_item["keywords"] = selected_keywords
 
         batched_treated_items.append(treated_item)
 

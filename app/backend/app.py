@@ -81,10 +81,7 @@ async def search_text():
             return jsonify(r), 200
 
         else:
-
-            select = request_json["select"] if request_json.get("select") else None
             k = request_json["k"] if request_json.get("k") else 10
-            filter = request_json["filter"] if request_json.get("filter") else None
 
             use_semantic_captions = (
                 request_json["useSemanticCaptions"]
@@ -95,15 +92,13 @@ async def search_text():
                 request_json["queryVector"] if request_json.get("queryVector") else None
             )
 
-            data_set = request_json["dataSet"] if request_json.get("dataSet") else "sample"
+            data_set = request_json["dataSet"] if request_json.get("dataSet") else "conditions"
             indexConfig = dataSetConfigDict[data_set]
 
             r = await current_app.config[indexConfig].search(
                 query=query,
                 use_semantic_captions=use_semantic_captions,
-                select=select,
                 k=k,
-                filter=filter,
                 query_vector=query_vector,
                 approach=approach
             )

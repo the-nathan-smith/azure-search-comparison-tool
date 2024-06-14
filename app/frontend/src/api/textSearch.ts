@@ -7,12 +7,10 @@ export const getTextSearchResults = async (
     useSemanticCaptions: boolean,
     dataSet?: string,
     queryVector?: number[],
-    select?: string,
     k?: number
 ): Promise<SearchResponse<TextSearchResult>> => {
     const requestBody: TextSearchRequest = {
         query: searchQuery,
-        select: select,
         dataSet: dataSet,
         approach: approach.key
     };

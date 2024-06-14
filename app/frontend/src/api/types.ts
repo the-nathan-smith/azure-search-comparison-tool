@@ -7,9 +7,7 @@ export interface Approach {
 
 export interface TextSearchRequest {
     query: string;
-    select?: string;
     k?: number;
-    filter?: string;
     useSemanticCaptions?: boolean;
     queryVector?: number[];
     dataSet?: string;

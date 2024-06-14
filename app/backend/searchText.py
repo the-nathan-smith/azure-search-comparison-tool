@@ -21,11 +21,9 @@ class SearchText:
         self,
         query: str,
         use_semantic_captions: bool = False,
-        select: str | None = None,
         k: int | None = None,
-        filter: str | None = None,
         query_vector: list[float] | None = None,
-        approach: str = "undefined"
+        approach: str = "text"
     ):
         # get approach config
 
@@ -34,6 +32,8 @@ class SearchText:
         use_vector_search = approach_config["use_vector_search"]
         use_hybrid_search = approach_config["use_hybrid_search"] if use_vector_search else False
         use_semantic_ranker = approach_config["use_semantic_ranker"] if use_vector_search else False
+
+        select = approach_config["output_field_names"] if "output_field_names" in approach_config else None
 
         # Vectorize query
         query_vector = query_vector if use_vector_search else None
@@ -71,7 +71,6 @@ class SearchText:
             vector_queries = vector_queries,
             top=k,
             select=select,
-            filter=filter,
             query_type=query_type,
             semantic_configuration_name=semantic_configuration,
             query_caption=query_caption,

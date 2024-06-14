@@ -4,7 +4,12 @@
         "title": "Text Only (BM25)",
         "description": "Uses the Best Match 25 full text search algorithm with default `k1` and `b` parameters. `k1` controls the scaling function between the term frequency of each matching terms and the final relevance score of a document-query pair (0 - 3). By default, a value of 1.2 is used. `b` controls how the length of a document affects the relevance score (0 - 1). By default, a value of 0.75 is used.",
         "use_vector_search": false,
-        "data_set": "conditions"
+        "data_set": "conditions",
+        "output_field_names": [
+            "id",
+            "title",
+            "description"
+        ]
     },
     {
         "key": "vec",
@@ -12,6 +17,11 @@
         "description": "Uses the `text-embedding-ada-002` OpenAI model to vectorize the source text.",
         "use_vector_search": true,
         "data_set": "conditions",
+        "output_field_names": [
+            "id",
+            "title",
+            "description"
+        ],
         "vector_field_names": "titleVector,descriptionVector",
         "use_hybrid_search": false,
         "use_semantic_ranker": false,
@@ -23,6 +33,11 @@
         "description": "Uses the `text-embedding-ada-002` OpenAI model to vectorize the source text, but only uses the title field in the search query.",
         "use_vector_search": true,
         "data_set": "conditions",
+        "output_field_names": [
+            "id",
+            "title",
+            "description"
+        ],
         "vector_field_names": "descriptionVector",
         "use_hybrid_search": false,
         "use_semantic_ranker": false,
@@ -34,6 +49,11 @@
         "description": "",
         "use_vector_search": true,
         "data_set": "conditions",
+        "output_field_names": [
+            "id",
+            "title",
+            "description"
+        ],
         "vector_field_names": "titleVector,descriptionVector",
         "use_hybrid_search": true,
         "use_semantic_ranker": false,
@@ -45,6 +65,11 @@
         "description": "",
         "use_vector_search": true,
         "data_set": "conditions",
+        "output_field_names": [
+            "id",
+            "title",
+            "description"
+        ],
         "vector_field_names": "titleVector,descriptionVector",
         "use_hybrid_search": true,
         "use_semantic_ranker": true,
@@ -61,7 +86,12 @@
         "title": "Text Only (BM25)",
         "description": "Uses the Best Match 25 full text search algorithm with default `k1` and `b` parameters. `k1` controls the scaling function between the term frequency of each matching terms and the final relevance score of a document-query pair (0 - 3). By default, a value of 1.2 is used. `b` controls how the length of a document affects the relevance score (0 - 1). By default, a value of 0.75 is used. Index uses a full set of data from the data source",
         "use_vector_search": false,
-        "data_set": "combined"
+        "data_set": "combined",
+        "output_field_names": [
+            "id",
+            "title",
+            "description"
+        ]
     },
     {
         "key": "exhaustive_vec_large",
@@ -69,6 +99,11 @@
         "description": "",
         "use_vector_search": true,
         "data_set": "combined",
+        "output_field_names": [
+            "id",
+            "title",
+            "description"
+        ],
         "vector_field_names": "title_vector,description_vector,short_descriptions_vector,content_vector",
         "use_hybrid_search": false,
         "use_semantic_ranker": false,
@@ -80,6 +115,11 @@
         "description": "",
         "use_vector_search": true,
         "data_set": "combined",
+        "output_field_names": [
+            "id",
+            "title",
+            "description"
+        ],
         "vector_field_names": "title_vector,description_vector,short_descriptions_vector,content_vector",
         "use_hybrid_search": true,
         "use_semantic_ranker": false,
@@ -91,6 +131,11 @@
         "description": "",
         "use_vector_search": true,
         "data_set": "combined",
+        "output_field_names": [
+            "id",
+            "title",
+            "description"
+        ],
         "vector_field_names": "title_vector,description_vector,short_descriptions_vector,content_vector",
         "use_hybrid_search": true,
         "use_semantic_ranker": true,

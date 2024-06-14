@@ -23,18 +23,13 @@ const Vector: React.FC = () => {
     const [hideScores, setHideScores] = React.useState<boolean>(true);
     const [errors, setErrors] = React.useState<string[]>([]);
     const [selectedDatasetKey, setSelectedDatasetKey] = React.useState<string>("conditions");
-
     const [allApproaches, setAllApproaches] = React.useState<Approach[]>([]);
 
     useEffect(() => {
         async function loadApproaches() {
-            // You can await here
             const all_approaches = await getApproaches();
 
-            console.log(JSON.stringify(all_approaches));
-
             setAllApproaches(all_approaches);
-            // ...
         }
         loadApproaches().catch(() => console.log("oh no!"));
     }, []);
@@ -117,7 +112,7 @@ const Vector: React.FC = () => {
                     setLoading(false);
                 });
         },
-        [selectedApproachKeys, useSemanticCaptions, selectedDatasetKey]
+        [selectedApproachKeys, useSemanticCaptions, selectedDatasetKey, allApproaches]
     );
 
     const handleOnKeyDown = useCallback(
@@ -156,8 +151,21 @@ const Vector: React.FC = () => {
 
     const onDatasetChange = React.useCallback((_event: React.FormEvent<HTMLDivElement>, item?: IDropdownOption): void => {
         setResultCards([]);
-        setSelectedDatasetKey(String(item?.key) ?? "conditions");
+
+        const dataSet = String(item?.key) ?? "conditions";
+        const selectedApproach = dataSet === "conditions" ? "text" : "text_2";
+
+        setSelectedDatasetKey(dataSet);
+        setSelectedApproachKeys([selectedApproach]);
     }, []);
+
+    function isChecked(approachKey: string): boolean {
+        return selectedApproachKeys.includes(approachKey);
+    }
+
+    function isDisabled(approachKey: string): boolean {
+        return selectedApproachKeys.length == MaxSelectedModes && !selectedApproachKeys.includes(approachKey);
+    }
 
     return (
         <div className={styles.vectorContainer}>
@@ -260,10 +268,10 @@ const Vector: React.FC = () => {
                     <div key={approach.key}>
                         <Checkbox
                             className={styles.vectorSettingsSeparator}
-                            checked={selectedApproachKeys.includes(approach.key)}
+                            checked={isChecked(approach.key)}
                             label={approach.title}
                             onChange={(_ev, checked) => onApproachChange(_ev, checked, approach)}
-                            disabled={selectedApproachKeys.length == MaxSelectedModes && !selectedApproachKeys.includes(approach.key)}
+                            disabled={isDisabled(approach.key)}
                         />
                         {approach.key === "hssr" && selectedApproachKeys.includes("hssr") && (
                             <>
