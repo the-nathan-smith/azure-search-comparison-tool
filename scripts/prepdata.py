@@ -444,7 +444,7 @@ def populate_search_index_nhs_combined_data():
     batched_treated_items = []
     batch_size = 12
 
-    for item in items[:20]:
+    for item in items:
 
         treated_item = {
             "id": item["id"],
@@ -512,13 +512,15 @@ def populate_search_index_nhs_combined_data():
             deployment_name=AZURE_OPENAI_DEPLOYMENT_LARGE_NAME)
         
 
-        str_title_desc = " ".join(treated_item["title"], treated_item["description"])
-        str_short_descs = " ".join(treated_item["short_descriptions"]) if len(treated_item["short_descriptions"]) > 0 else ""
-        str_content = " ".join(treated_item["content"]) if len(treated_item["content"]) > 0 else ""
+        str_title_desc = " ".join([treated_item["title"], treated_item["description"]])
+        str_short_descs = " ".join(treated_item["short_descriptions"]) if "short_descriptions" in treated_item else ""
+        str_content = " ".join(treated_item["content"]) if "content" in treated_item else ""
 
-        keywords = kw_model.extract_keywords(str_title_desc + " " + str_short_descs + " " + str_content, top_n=20)
-
-        print(keywords)
+        keywords = kw_model.extract_keywords(
+            str_title_desc + " " + str_short_descs + " " + str_content,
+            top_n=20,
+            use_mmr=True,
+            diversity=0.5)
 
         selected_keywords = []
 
@@ -545,7 +547,7 @@ def populate_search_index_nhs_combined_data():
         print(f"Uploading final batch of {len(batched_treated_items)} items ...")
         search_client.upload_documents(batched_treated_items)
 
-    print(f"Uploaded {len(items)} documents to index 'martin-test-index'")
+    print(f"Uploaded {len(items)} documents to index '{AZURE_SEARCH_NHS_COMBINED_INDEX_NAME}'")
 
 def create_and_populate_nhs_combined_data_index():
     created = create_search_index_nhs_combined_data()
