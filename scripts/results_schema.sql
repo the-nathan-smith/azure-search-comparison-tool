@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS public.poc_results
     result_id integer GENERATED ALWAYS AS IDENTITY,
     search_query character varying(256) COLLATE pg_catalog."default" NOT NULL,
     approach_code character varying(64) COLLATE pg_catalog."default" NOT NULL,
-    ndcg numeric(21,20),
+    ndcg_3 numeric(21,20),
+    ndcg_10 numeric(21,20),
     search_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT poc_results_pkey PRIMARY KEY (result_id)
 )
@@ -52,14 +53,14 @@ TABLESPACE pg_default;
 ALTER TABLE public.poc_ideal_result_rankings
     OWNER to resultsadmin;
 
-CREATE OR REPLACE VIEW public.poc_ndcg_rankings
+CREATE OR REPLACE VIEW public.poc_ndcg_rankings_3
 AS
-SELECT DISTINCT lower(search_query) as search_query, approach_code, ndcg
+SELECT DISTINCT lower(search_query) as search_query, approach_code, ndcg_3
 FROM public.poc_results
-WHERE ndcg IS NOT NULL
-ORDER BY lower(search_query), ndcg DESC, approach_code;
+WHERE ndcg_3 IS NOT NULL
+ORDER BY lower(search_query), ndcg_3 DESC, approach_code;
 
-ALTER TABLE public.poc_ndcg_rankings
+ALTER TABLE public.poc_ndcg_rankings_3
     OWNER TO resultsadmin;
 
 
@@ -69,7 +70,8 @@ SELECT
     R.result_id,
     R.search_query,
     R.approach_code,
-    R.ndcg,
+    R.ndcg_3,
+    R.ndcg_10,
     ARR.rank,
     ARR.article_id,
     CAST(ARR.relevance_score AS NUMERIC(6, 3)) as relevance,
@@ -138,4 +140,60 @@ $$
 LANGUAGE SQL;
 
 ALTER FUNCTION public.poc_compare_search_query_results(search_query text)
+    OWNER TO resultsadmin;
+
+CREATE OR REPLACE FUNCTION public.poc_compare_search_query_results_2(search_query TEXT, approach_code_1 TEXT, approach_code_2 TEXT)
+RETURNS TABLE(
+    rank INT,
+    article_id_1 TEXT,
+    relevance_1 NUMERIC(6, 3),
+    article_id_2 TEXT,
+    relevance_2 NUMERIC(6, 3),
+    algolia_article_id TEXT,
+    algolia_relevance NUMERIC(6, 3)
+)
+AS $$
+    WITH result_1 AS (
+        SELECT R.result_id
+        FROM public.poc_results R
+        WHERE lower(R.search_query) = lower($1) AND R.approach_code = $2
+        ORDER BY R.search_time DESC
+        LIMIT 1),
+    result_2 AS (
+        SELECT R.result_id
+        FROM public.poc_results R
+        WHERE lower(R.search_query) = lower($1) AND R.approach_code = $3
+        ORDER BY R.search_time DESC
+        LIMIT 1),
+    algolia_result AS (
+        SELECT R.result_id
+        FROM public.poc_results R
+        WHERE lower(R.search_query) = lower($1) AND R.approach_code = 'algolia'
+        ORDER BY R.search_time DESC
+        LIMIT 1)
+    SELECT 
+        ARR_1.rank,
+        ARR_1.article_id as article_id_1,
+        CAST(ARR_1.relevance_score AS NUMERIC(6, 3)) AS relevance_1,
+        ARR_2.article_id as article_id_2,
+        CAST(ARR_2.relevance_score AS NUMERIC(6, 3)) as relevance_2,
+        ALG_ARR.article_id as algolia_article_id,
+        CAST(ALG_ARR.relevance_score AS NUMERIC(6, 3)) as algolia_relevance
+    FROM
+        public.poc_actual_result_rankings ARR_1,
+        result_1 R_1,
+        public.poc_actual_result_rankings ARR_2,
+        result_2 R_2,
+        public.poc_actual_result_rankings ALG_ARR,
+        algolia_result ALG_R
+    WHERE ARR_1.result_id = R_1.result_id
+    AND ARR_2.result_id = R_2.result_id
+    AND ALG_ARR.result_id = ALG_R.result_id
+    AND ARR_1.rank = ARR_2.rank
+    AND ARR_1.rank = ALG_ARR.rank
+    ORDER BY ARR_1.rank;
+$$
+LANGUAGE SQL;
+
+ALTER FUNCTION public.poc_compare_search_query_results_2(search_query TEXT, approach_code_1 TEXT, approach_code_2 TEXT)
     OWNER TO resultsadmin;

@@ -300,7 +300,6 @@ def publish_results_db_schema():
 
     except Exception as e:
         logging.exception(str(e))
-    
 
 def create_search_index_nhs_combined_data() -> bool:
     index_client = SearchIndexClient(
@@ -355,6 +354,14 @@ def create_search_index_nhs_combined_data() -> bool:
                     name="keywords",
                     type=SearchFieldDataType.Collection(SearchFieldDataType.String),
                     searchable=False
+                ),
+                SearchField(
+                    name="content_types",
+                    type=SearchFieldDataType.Collection(SearchFieldDataType.String),
+                    searchable=False,
+                    filterable=True,
+                    sortable=False,
+                    facetable=True
                 )
             ],
             vector_search=VectorSearch(
@@ -391,7 +398,7 @@ def create_search_index_nhs_combined_data() -> bool:
                             content_fields=[
                                 SemanticField(field_name="description")
                             ],
-                            keyword_fields=[
+                            keywords_fields=[
                                 SemanticField(field_name="keywords")
                             ]
                         ),
@@ -431,123 +438,123 @@ def populate_search_index_nhs_combined_data():
 
     kw_model = KeyBERT()
 
-    with open("data/conditions_1.json", "r", encoding="utf-8") as file:
-        conditions_items = json.load(file)
+    for file_name in ["data/conditions_1.json", "data/medicines_1.json", "data/articles_1.json"]:
 
-    with open("data/medicines_1.json", "r", encoding="utf-8") as file:
-        medicines_items = json.load(file)
+        with open(file_name, "r", encoding="utf-8") as file:
+            items = json.load(file)
 
-    items = conditions_items + medicines_items
+        print(f"loaded {len(items)} items from {file_name}")
 
-    print(f"loaded {len(conditions_items)} conditions and {len(medicines_items)} medicines and combined into {len(items)} items")
+        batched_treated_items = []
+        batch_size = 12
 
-    batched_treated_items = []
-    batch_size = 12
+        for item in items:
 
-    for item in items:
+            treated_item = {
+                "id": item["id"],
+                "title": item["title"],
+                "description": item["description"],
+                "content_types": item["content_types"]
+            }
 
-        treated_item = {
-            "id": item["id"],
-            "title": item["title"],
-            "description": item["description"]
-        }
+            short_descriptions = []
+            rich_text_content = []
 
-        short_descriptions = []
-        rich_text_content = []
+            all_short_description_text = ""
+            all_content = ""
 
-        all_short_description_text = ""
-        all_content = ""
+            nbsp = u'\xa0'
 
-        nbsp = u'\xa0'
+            for c in item["content"]:
 
-        for c in item["content"]:
+                short_description = c["value"]["short_description"]
 
-            short_description = c["value"]["short_description"]
+                if len(short_description) > 0:
+                    short_descriptions.append(short_description)
 
-            if len(short_description) > 0:
-                short_descriptions.append(short_description)
-
-                if len(all_short_description_text) == 0:
-                    all_short_description_text = short_description
-                else:
-                    all_short_description_text += " " + short_description
-
-            for inner_c in c["value"]["content"]:
-
-                if inner_c["type"] == "richtext":
-                    rich_text = inner_c["value"]
-
-                    soup = BeautifulSoup(rich_text, 'html.parser')
-
-                    # print(soup.prettify())
-
-                    # specifically convert non breaking spaces to spaces
-                    t2 = soup.get_text(separator=" ").replace('\u00a0', ' ').replace(nbsp, ' ').replace('  ', ' ').replace('"','\\"')
-
-                    t3 = json.loads(f'"{t2}"')
-                    
-                    # print(t3)
-
-                    rich_text_content.append(t3)
-
-                    if len(all_content) == 0:
-                        all_content = t3
+                    if len(all_short_description_text) == 0:
+                        all_short_description_text = short_description
                     else:
-                        all_content += " " + t3
+                        all_short_description_text += " " + short_description
 
-        print(f"{treated_item["id"]} has {len(short_descriptions)} short descriptions")
+                for inner_c in c["value"]["content"]:
 
-        if len(short_descriptions) > 0:
-            treated_item["short_descriptions"] = short_descriptions
+                    if inner_c["type"] == "richtext":
+                        rich_text = inner_c["value"]
 
-        if len(rich_text_content) > 0:
-            treated_item["content"] = rich_text_content
-        
-        get_text_embeddings(
-            redis_client,
-            openai_client,
-            text_property_names=["title", "description", "short_descriptions", "content"],
-            vector_property_names=["title_vector", "description_vector", "short_descriptions_vector", "content_vector"],
-            item=treated_item,
-            deployment_name=AZURE_OPENAI_DEPLOYMENT_LARGE_NAME)
-        
+                        soup = BeautifulSoup(rich_text, 'html.parser')
 
-        str_title_desc = " ".join([treated_item["title"], treated_item["description"]])
-        str_short_descs = " ".join(treated_item["short_descriptions"]) if "short_descriptions" in treated_item else ""
-        str_content = " ".join(treated_item["content"]) if "content" in treated_item else ""
+                        # print(soup.prettify())
 
-        keywords = kw_model.extract_keywords(
-            str_title_desc + " " + str_short_descs + " " + str_content,
-            top_n=20,
-            use_mmr=True,
-            diversity=0.5)
+                        # specifically convert non breaking spaces to spaces
+                        t2 = soup.get_text(separator=" ").replace('\u00a0', ' ').replace(nbsp, ' ').replace('  ', ' ').replace('"','\\"')
 
-        selected_keywords = []
+                        t3 = json.loads(f'"{t2}"')
+                        
+                        # print(t3)
 
-        for kw in keywords:
-            if kw[1] > 0.25:
-                selected_keywords.append(kw[0])
+                        rich_text_content.append(t3)
 
-        print(selected_keywords)
+                        if len(all_content) == 0:
+                            all_content = t3
+                        else:
+                            all_content += " " + t3
 
-        treated_item["keywords"] = selected_keywords
+            print(f"{treated_item["id"]} has {len(short_descriptions)} short descriptions")
 
-        batched_treated_items.append(treated_item)
+            if len(short_descriptions) > 0:
+                treated_item["short_descriptions"] = short_descriptions
 
-        if len(batched_treated_items) >= batch_size:
+            if len(rich_text_content) > 0:
+                treated_item["content"] = rich_text_content
+            
+            get_text_embeddings(
+                redis_client,
+                openai_client,
+                text_property_names=["title", "description", "short_descriptions", "content"],
+                vector_property_names=["title_vector", "description_vector", "short_descriptions_vector", "content_vector"],
+                item=treated_item,
+                deployment_name=AZURE_OPENAI_DEPLOYMENT_LARGE_NAME)
 
-            print(f"Uploading batch of {len(batched_treated_items)} items ...")
+            treated_item["keywords"] = get_keywords(kw_model, treated_item)
 
+            batched_treated_items.append(treated_item)
+
+            if len(batched_treated_items) >= batch_size:
+
+                print(f"Uploading batch of {len(batched_treated_items)} items ...")
+
+                search_client.upload_documents(batched_treated_items)
+
+                batched_treated_items.clear()
+
+        if len(batched_treated_items) > 0:
+
+            print(f"Uploading final batch of {len(batched_treated_items)} items ...")
             search_client.upload_documents(batched_treated_items)
 
-            batched_treated_items.clear()
+        print(f"Uploaded {len(items)} documents to index '{AZURE_SEARCH_NHS_COMBINED_INDEX_NAME}'")
 
-    if len(batched_treated_items) > 0:
+def get_keywords(kw_model, item):
+    str_title_desc = " ".join([item["title"], item["description"]])
+    str_short_descs = " ".join(item["short_descriptions"]) if "short_descriptions" in item else ""
+    str_content = " ".join(item["content"]) if "content" in item else ""
 
-        print(f"Uploading final batch of {len(batched_treated_items)} items ...")
-        search_client.upload_documents(batched_treated_items)
+    keywords = kw_model.extract_keywords(
+        str_title_desc + " " + str_short_descs + " " + str_content,
+        top_n=20,
+        use_mmr=True,
+        diversity=0.5)
 
-    print(f"Uploaded {len(items)} documents to index '{AZURE_SEARCH_NHS_COMBINED_INDEX_NAME}'")
+    selected_keywords = []
+
+    for kw in keywords:
+        if kw[1] > 0.25:
+            selected_keywords.append(kw[0])
+
+    print(selected_keywords)
+
+    return selected_keywords
 
 def create_and_populate_nhs_combined_data_index():
     created = create_search_index_nhs_combined_data()

@@ -88,6 +88,7 @@ async def search_text():
                 if request_json.get("useSemanticCaptions")
                 else False
             )
+
             query_vector = (
                 request_json["queryVector"] if request_json.get("queryVector") else None
             )

@@ -139,7 +139,24 @@
         "vector_field_names": "title_vector,description_vector,short_descriptions_vector,content_vector",
         "use_hybrid_search": true,
         "use_semantic_ranker": true,
-        "semantic_configuration_name": "martin-test-semantic-config",
+        "semantic_configuration_name": "default-semantic-config",
+        "open_ai_deployment_name": "embedding-large"
+    },
+    {
+        "key": "hssr_large_kw",
+        "title": "Hybrid + Semantic Reranking (keywords)",
+        "description": "",
+        "use_vector_search": true,
+        "data_set": "combined",
+        "output_field_names": [
+            "id",
+            "title",
+            "description"
+        ],
+        "vector_field_names": "title_vector,description_vector,short_descriptions_vector,content_vector",
+        "use_hybrid_search": true,
+        "use_semantic_ranker": true,
+        "semantic_configuration_name": "semantic-config-keywords",
         "open_ai_deployment_name": "embedding-large"
     }
 ]

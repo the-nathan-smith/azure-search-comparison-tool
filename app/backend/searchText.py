@@ -142,7 +142,7 @@ class SearchText:
             
         ranking_result = self.ranking.rank_results(query, ordered_result_ids)
 
-        self.logger.info(f"{approach_config["title"]}  => NDCG:{ranking_result["ndcg"]}")
+        self.logger.info(f"{approach_config["title"]}  => NDCG@3:{ranking_result["ndcg@3"]}")
 
         for key, value in list(ranking_result["result_rankings"].items()):
 
@@ -158,4 +158,10 @@ class SearchText:
             print(f"{key}->{value}")
             ideal_results.append({"id": key, "relevance": value})
 
-        self.results.persist_ranked_results(query, approach_config["key"], ranking_result["ndcg"], ideal_results, actual_results)
+        self.results.persist_ranked_results(
+            query,
+            approach_config["key"],
+            ranking_result["ndcg@3"],
+            ranking_result["ndcg@10"],
+            ideal_results,
+            actual_results)
