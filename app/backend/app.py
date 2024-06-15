@@ -2,8 +2,11 @@ import os
 import time
 import logging
 import gzip
+import json
 import logging.config
 import yaml
+import redis
+import hashlib
 from openai import AzureOpenAI
 from io import BytesIO
 from quart import Quart, request, jsonify, Blueprint, current_app
@@ -24,6 +27,7 @@ CONFIG_SEARCH_CONDITIONS_INDEX = "search_conditions"
 CONFIG_SEARCH_COMBINED_INDEX = "search_combined"
 CONFIG_INDEX_CONDITIONS = "index_conditions"
 CONFIG_ALGOLIA_SEARCH = "algolia_search"
+CONFIG_REDIS_CLIENT = "redis_client"
 
 dataSetConfigDict = {
      "conditions": CONFIG_SEARCH_CONDITIONS_INDEX,
@@ -51,18 +55,35 @@ async def embed_query():
 
         a = Approaches("./data/approaches.json").get(approach)
 
+        deployment_name = a["open_ai_deployment_name"]
+
+        redis_client = current_app.config[CONFIG_REDIS_CLIENT]
+
+        query_hash = int(hashlib.sha256(query.encode('utf-8')).hexdigest(), 16) % 10**8
+
+        key = f"search_{query_hash}_{deployment_name}"
+
+        if redis_client.exists(key):
+            
+            cache_item = json.loads(redis_client.get(key))
+
+            print(f"matched {key} for query {query}")
+
+            return cache_item["embedding"], 200
+
         openai_client = current_app.config[CONFIG_OPENAI_CLIENT]
 
         response = openai_client.embeddings.create(
             input = query,
-            model = a["open_ai_deployment_name"]
+            model = deployment_name
         )
+
+        redis_client.set(key, json.dumps({"query": query, "deployment": deployment_name, "embedding": response.data[0].embedding }))
 
         return response.data[0].embedding, 200
     except Exception as e:
         logging.exception("Exception in /embedQuery")
         return jsonify({"error": str(e)}), 500
-
 
 @bp.route("/searchText", methods=["POST"])
 async def search_text():
@@ -154,11 +175,23 @@ async def setup_clients():
     POSTGRES_USER = os.getenv("POSTGRES_SERVER_ADMIN_LOGIN")
     POSTGRES_PASSWORD = os.getenv("POSTGRES_SERVER_ADMIN_PASSWORD")
 
+    REDIS_HOST = os.getenv("REDIS_HOST")
+    REDIS_PORT = os.getenv("REDIS_PORT")
+    REDIS_PASSWORD = os.getenv("REDIS_PRIMARYKEY")
+
     # Use the current user identity to authenticate with Azure OpenAI, Cognitive Search and AI Vision (no secrets needed, just use 'az login' locally, and managed identity when deployed on Azure).
     # If you need to use keys, use separate AzureKeyCredential instances with the keys for each service.
     # If you encounter a blocking error during a DefaultAzureCredential resolution, you can exclude the problematic credential by using a parameter (ex. exclude_shared_token_cache_credential=True).
     azure_credential = DefaultAzureCredential(
         exclude_shared_token_cache_credential=True
+    )
+
+    redis_client = redis.StrictRedis(
+        host=REDIS_HOST,
+        port=REDIS_PORT,
+        password=REDIS_PASSWORD,
+        ssl=True,
+        decode_responses=True
     )
     
     openai_client = await get_openai_client(azure_credential, AZURE_OPENAI_SERVICE)
@@ -183,6 +216,7 @@ async def setup_clients():
     current_app.config[CONFIG_OPENAI_SERVICE] = AZURE_OPENAI_SERVICE
     # current_app.config[CONFIG_OPENAI_TOKEN] = openai_token
     current_app.config[CONFIG_CREDENTIAL] = azure_credential
+    current_app.config[CONFIG_REDIS_CLIENT] = redis_client
     current_app.config[CONFIG_OPENAI_CLIENT] = openai_client
     current_app.config[CONFIG_OPENAI_TOKEN_CREATED_TIME] = time.time()
     current_app.config[CONFIG_ALGOLIA_SEARCH] = AlgoliaSiteSearch(results)
