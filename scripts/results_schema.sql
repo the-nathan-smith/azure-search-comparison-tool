@@ -197,3 +197,44 @@ LANGUAGE SQL;
 
 ALTER FUNCTION public.poc_compare_search_query_results_2(search_query TEXT, approach_code_1 TEXT, approach_code_2 TEXT)
     OWNER TO resultsadmin;
+
+CREATE OR REPLACE FUNCTION public.poc_combined_rrf(search_query TEXT)
+RETURNS TABLE(
+    article_id_1 TEXT,
+    rrf_score NUMERIC(6, 5)
+)
+AS $$
+    WITH reciprocal_ranks AS (
+        SELECT
+            ARR.article_id,
+            R.approach_code,
+            ARR.rank + 1 as rank,
+            1.0 / (ARR.rank + 1 + 60) AS reciprocal_rank
+        FROM
+            public.poc_actual_result_rankings ARR
+        JOIN
+            public.poc_results R ON ARR.result_id = R.result_id AND lower(R.search_query) = lower($1)
+        WHERE R.approach_code IN ('hs_large', 'hssr_large', 'hssr_large_kw')
+        ),
+    aggregated_ranks AS (
+        SELECT
+            article_id,
+            SUM(reciprocal_rank) AS rrf_score
+        FROM
+            reciprocal_ranks
+        GROUP BY
+            article_id
+    )
+    SELECT
+        article_id,
+        rrf_score
+    FROM
+        aggregated_ranks
+    WHERE rrf_score > 0.025
+    ORDER BY
+        rrf_score DESC;
+$$
+LANGUAGE SQL;
+
+ALTER FUNCTION public.poc_combined_rrf(search_query TEXT)
+    OWNER TO resultsadmin;
