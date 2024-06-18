@@ -19,7 +19,6 @@ from azure.identity import DefaultAzureCredential
 from azure.search.documents import SearchClient
 from azure.search.documents.indexes import SearchIndexClient
 from azure.search.documents.indexes.models import (
-    HnswParameters,
     SemanticPrioritizedFields,
     SearchableField,
     SearchField,
@@ -32,9 +31,13 @@ from azure.search.documents.indexes.models import (
     VectorSearch,
     VectorSearchProfile,
     HnswAlgorithmConfiguration,
-    ExhaustiveKnnAlgorithmConfiguration
+    ExhaustiveKnnAlgorithmConfiguration,
+    ScoringProfile,
+    TextWeights
 )
 from postgres import Postgres
+
+from azure.core.exceptions import ResourceNotFoundError
 
 AZURE_OPENAI_SERVICE = os.environ.get("AZURE_OPENAI_SERVICE")
 AZURE_OPENAI_DEPLOYMENT_NAME = os.environ.get("AZURE_OPENAI_DEPLOYMENT_NAME")
@@ -213,8 +216,6 @@ def generate_text_embeddings(
         input = text,
         model = openai_deployment_name)
 
-    print(f"generated {len(response.data)} embeddings")
-
     embeddings = np.array([item.embedding for item in response.data])
 
     return np.concatenate(embeddings).tolist()
@@ -246,8 +247,6 @@ def get_text_embeddings(
         redis_obj = {}
 
         for idx, text_property_name in enumerate(text_property_names):
-
-            print(f"{idx} {text_property_name}")
 
             if text_property_name in item:
 
@@ -320,6 +319,7 @@ def create_search_index_nhs_combined_data() -> bool:
                 ),
                 SearchableField(name="title", type=SearchFieldDataType.String),
                 SearchableField(name="description", type=SearchFieldDataType.String),
+                SearchableField(name="aspect_headers", collection=True, type=SearchFieldDataType.Collection(SearchFieldDataType.String)),
                 SearchableField(name="short_descriptions", collection=True, type=SearchFieldDataType.Collection(SearchFieldDataType.String)),
                 SearchableField(name="content", collection=True, type=SearchFieldDataType.Collection(SearchFieldDataType.String)),
                 SearchField(
@@ -327,28 +327,35 @@ def create_search_index_nhs_combined_data() -> bool:
                     type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                     searchable=True,
                     vector_search_dimensions=3072,
-                    vector_search_profile_name="test-vector-profile"
+                    vector_search_profile_name="knn-vector-profile"
                 ),
                 SearchField(
                     name="description_vector",
                     type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                     searchable=True,
                     vector_search_dimensions=3072,
-                    vector_search_profile_name="test-vector-profile"
+                    vector_search_profile_name="knn-vector-profile"
+                ),
+                SearchField(
+                    name="aspect_headers_vector",
+                    type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
+                    searchable=True,
+                    vector_search_dimensions=3072,
+                    vector_search_profile_name="knn-vector-profile"
                 ),
                 SearchField(
                     name="short_descriptions_vector",
                     type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                     searchable=True,
                     vector_search_dimensions=3072,
-                    vector_search_profile_name="test-vector-profile"
+                    vector_search_profile_name="knn-vector-profile"
                 ),
                 SearchField(
                     name="content_vector",
                     type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                     searchable=True,
                     vector_search_dimensions=3072,
-                    vector_search_profile_name="test-vector-profile"
+                    vector_search_profile_name="knn-vector-profile"
                 ),
                 SearchField(
                     name="keywords",
@@ -362,13 +369,22 @@ def create_search_index_nhs_combined_data() -> bool:
                     filterable=True,
                     sortable=False,
                     facetable=True
+                ),
+                SimpleField(
+                    name="url",
+                    type=SearchFieldDataType.String,
+                    key=False,
+                    searchable=False,
+                    filterable=False,
+                    sortable=False,
+                    facetable=False,
                 )
             ],
             vector_search=VectorSearch(
-                algorithms=[ExhaustiveKnnAlgorithmConfiguration(name="testKnn")],
+                algorithms=[ExhaustiveKnnAlgorithmConfiguration(name="exhaustiveKnn")],
                 profiles=[VectorSearchProfile(
-                    name="test-vector-profile",
-                    algorithm_configuration_name="testKnn")]
+                    name="knn-vector-profile",
+                    algorithm_configuration_name="exhaustiveKnn")]
             ),
             semantic_search=SemanticSearch(
                 configurations=[
@@ -405,13 +421,25 @@ def create_search_index_nhs_combined_data() -> bool:
                     )
                 ]
             ),
+            scoring_profiles=[
+                ScoringProfile(
+                    name="title_weighted",
+                    text_weights=TextWeights(
+                        weights={
+                            "title": 2.0,
+                            "description": 1.75,
+                            "aspect_headers": 1.5,
+                            "short_descriptions": 1.25,
+                            "content": 1.0
+                            }))
+            ]
         )
         print(f"Creating {AZURE_SEARCH_NHS_COMBINED_INDEX_NAME} search index")
         index_client.create_index(index)
         return True
     else:
         print(f"Search index {AZURE_SEARCH_NHS_COMBINED_INDEX_NAME} already exists")
-        return False
+        return True
 
 def populate_search_index_nhs_combined_data():
     print(f"Populating search index {AZURE_SEARCH_NHS_COMBINED_INDEX_NAME} with documents")
@@ -450,32 +478,44 @@ def populate_search_index_nhs_combined_data():
 
         for item in items:
 
+            item_id = item["url_path"].strip('/').replace("/", "_")
+
+            try:
+                existing_doc = search_client.get_document(item_id, ["id"])
+
+                print(f"{existing_doc["id"]} already exists. Skipping...")
+
+                continue
+            except ResourceNotFoundError:
+                print(f"Adding entry for {item_id}")
+
             treated_item = {
-                "id": item["id"],
+                "id": item_id,
                 "title": item["title"],
                 "description": item["description"],
-                "content_types": item["content_types"]
+                "content_types": item["content_types"],
+                "url": item["url_path"]
             }
 
+            aspect_headers = []
             short_descriptions = []
             rich_text_content = []
 
-            all_short_description_text = ""
             all_content = ""
 
             nbsp = u'\xa0'
 
             for c in item["content"]:
 
+                aspect_header = c["value"]["aspect_header"]
+
+                if len(aspect_header) > 0:
+                    aspect_headers.append(aspect_header)
+
                 short_description = c["value"]["short_description"]
 
                 if len(short_description) > 0:
                     short_descriptions.append(short_description)
-
-                    if len(all_short_description_text) == 0:
-                        all_short_description_text = short_description
-                    else:
-                        all_short_description_text += " " + short_description
 
                 for inner_c in c["value"]["content"]:
 
@@ -500,7 +540,10 @@ def populate_search_index_nhs_combined_data():
                         else:
                             all_content += " " + t3
 
-            print(f"{treated_item["id"]} has {len(short_descriptions)} short descriptions")
+            print(f"{treated_item["id"]} has {len(aspect_headers)} aspect headers and {len(short_descriptions)} short descriptions")
+
+            if len(aspect_headers) > 0:
+                treated_item["aspect_headers"] = aspect_headers
 
             if len(short_descriptions) > 0:
                 treated_item["short_descriptions"] = short_descriptions
@@ -511,8 +554,8 @@ def populate_search_index_nhs_combined_data():
             get_text_embeddings(
                 redis_client,
                 openai_client,
-                text_property_names=["title", "description", "short_descriptions", "content"],
-                vector_property_names=["title_vector", "description_vector", "short_descriptions_vector", "content_vector"],
+                text_property_names=["title", "description", "aspect_headers", "short_descriptions", "content"],
+                vector_property_names=["title_vector", "description_vector", "aspect_headers_vector", "short_descriptions_vector", "content_vector"],
                 item=treated_item,
                 deployment_name=AZURE_OPENAI_DEPLOYMENT_LARGE_NAME)
 
@@ -536,12 +579,14 @@ def populate_search_index_nhs_combined_data():
         print(f"Uploaded {len(items)} documents to index '{AZURE_SEARCH_NHS_COMBINED_INDEX_NAME}'")
 
 def get_keywords(kw_model, item):
-    str_title_desc = " ".join([item["title"], item["description"]])
+    str_aspect_headers = " ".join(item["aspect_headers"]) if "aspect_headers" in item else ""
     str_short_descs = " ".join(item["short_descriptions"]) if "short_descriptions" in item else ""
     str_content = " ".join(item["content"]) if "content" in item else ""
 
+    doc = " ".join([ item["title"], item["description"], str_aspect_headers, str_short_descs, str_content ])
+
     keywords = kw_model.extract_keywords(
-        str_title_desc + " " + str_short_descs + " " + str_content,
+        doc,
         top_n=20,
         use_mmr=True,
         diversity=0.5)

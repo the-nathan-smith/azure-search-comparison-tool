@@ -104,7 +104,7 @@
             "title",
             "description"
         ],
-        "vector_field_names": "title_vector,description_vector,short_descriptions_vector,content_vector",
+        "vector_field_names": "title_vector,description_vector,aspect_headers_vector,short_descriptions_vector,content_vector",
         "use_hybrid_search": false,
         "use_semantic_ranker": false,
         "open_ai_deployment_name": "embedding-large"
@@ -120,7 +120,7 @@
             "title",
             "description"
         ],
-        "vector_field_names": "title_vector,description_vector,short_descriptions_vector,content_vector",
+        "vector_field_names": "title_vector,description_vector,aspect_headers_vector,short_descriptions_vector,content_vector",
         "use_hybrid_search": true,
         "use_semantic_ranker": false,
         "open_ai_deployment_name": "embedding-large"
@@ -136,7 +136,7 @@
             "title",
             "description"
         ],
-        "vector_field_names": "title_vector,description_vector,short_descriptions_vector,content_vector",
+        "vector_field_names": "title_vector,description_vector,aspect_headers_vector,short_descriptions_vector,content_vector",
         "use_hybrid_search": true,
         "use_semantic_ranker": true,
         "semantic_configuration_name": "default-semantic-config",
@@ -153,10 +153,28 @@
             "title",
             "description"
         ],
-        "vector_field_names": "title_vector,description_vector,short_descriptions_vector,content_vector",
+        "vector_field_names": "title_vector,description_vector,aspect_headers_vector,short_descriptions_vector,content_vector",
         "use_hybrid_search": true,
         "use_semantic_ranker": true,
         "semantic_configuration_name": "semantic-config-keywords",
+        "open_ai_deployment_name": "embedding-large"
+    },
+    {
+        "key": "hssr_large_kw_title_weighted",
+        "title": "HSSR (keywords) + (title weighting)",
+        "description": "",
+        "use_vector_search": true,
+        "data_set": "combined",
+        "output_field_names": [
+            "id",
+            "title",
+            "description"
+        ],
+        "vector_field_names": "title_vector,description_vector,aspect_headers_vector,short_descriptions_vector,content_vector",
+        "use_hybrid_search": true,
+        "use_semantic_ranker": true,
+        "semantic_configuration_name": "semantic-config-keywords",
+        "scoring_profile_name": "title_weighted",
         "open_ai_deployment_name": "embedding-large"
     }
 ]

@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS public.poc_actual_result_rankings
     actual_result_ranking_id integer GENERATED ALWAYS AS IDENTITY,
     result_id integer NOT NULL,
     rank integer NOT NULL,
-    article_id character varying(128) COLLATE pg_catalog."default" NOT NULL,
+    article_id character varying(256) COLLATE pg_catalog."default" NOT NULL,
     relevance_score numeric(60,30),
     azure_ai_score numeric(60,30),
     CONSTRAINT poc_actual_result_rankings_pkey PRIMARY KEY (actual_result_ranking_id),
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS public.poc_ideal_result_rankings
     ideal_result_ranking_id integer GENERATED ALWAYS AS IDENTITY,
     result_id integer NOT NULL,
     rank integer NOT NULL,
-    article_id character varying(128) COLLATE pg_catalog."default" NOT NULL,
+    article_id character varying(256) COLLATE pg_catalog."default" NOT NULL,
     relevance_score numeric(60,30),
     CONSTRAINT poc_ideal_result_rankings_pkey PRIMARY KEY (ideal_result_ranking_id),
     CONSTRAINT poc_ideal_result_rankings_fk_result_id FOREIGN KEY (result_id)
@@ -214,7 +214,7 @@ AS $$
             public.poc_actual_result_rankings ARR
         JOIN
             public.poc_results R ON ARR.result_id = R.result_id AND lower(R.search_query) = lower($1)
-        WHERE R.approach_code IN ('hs_large', 'hssr_large', 'hssr_large_kw')
+        WHERE R.approach_code IN ('hs_large', 'hssr_large', 'hssr_large_kw', 'hssr_large_kw_title_weighted')
         ),
     aggregated_ranks AS (
         SELECT
