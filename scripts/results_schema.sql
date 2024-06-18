@@ -142,7 +142,7 @@ LANGUAGE SQL;
 ALTER FUNCTION public.poc_compare_search_query_results(search_query text)
     OWNER TO resultsadmin;
 
-CREATE OR REPLACE FUNCTION public.poc_compare_search_query_results_2(search_query TEXT, approach_code_1 TEXT, approach_code_2 TEXT)
+CREATE OR REPLACE FUNCTION public.poc_compare_search_query_results(search_query TEXT, approach_code_1 TEXT, approach_code_2 TEXT)
 RETURNS TABLE(
     rank INT,
     article_id_1 TEXT,
@@ -154,44 +154,25 @@ RETURNS TABLE(
 )
 AS $$
     WITH result_1 AS (
-        SELECT R.result_id
+        SELECT ARR.rank, ARR.article_id, ARR.relevance_score
         FROM public.poc_results R
-        WHERE lower(R.search_query) = lower($1) AND R.approach_code = $2
-        ORDER BY R.search_time DESC
-        LIMIT 1),
+        JOIN public.poc_actual_result_rankings ARR ON R.result_id = ARR.result_id
+        WHERE lower(R.search_query) = lower($1) AND R.approach_code = $2),
     result_2 AS (
-        SELECT R.result_id
+        SELECT ARR.rank, ARR.article_id, ARR.relevance_score
         FROM public.poc_results R
-        WHERE lower(R.search_query) = lower($1) AND R.approach_code = $3
-        ORDER BY R.search_time DESC
-        LIMIT 1),
-    algolia_result AS (
-        SELECT R.result_id
-        FROM public.poc_results R
-        WHERE lower(R.search_query) = lower($1) AND R.approach_code = 'algolia'
-        ORDER BY R.search_time DESC
-        LIMIT 1)
+        JOIN public.poc_actual_result_rankings ARR ON R.result_id = ARR.result_id
+        WHERE lower(R.search_query) = lower($1) AND R.approach_code = $3)
     SELECT 
-        ARR_1.rank,
-        ARR_1.article_id as article_id_1,
-        CAST(ARR_1.relevance_score AS NUMERIC(6, 3)) AS relevance_1,
-        ARR_2.article_id as article_id_2,
-        CAST(ARR_2.relevance_score AS NUMERIC(6, 3)) as relevance_2,
-        ALG_ARR.article_id as algolia_article_id,
-        CAST(ALG_ARR.relevance_score AS NUMERIC(6, 3)) as algolia_relevance
-    FROM
-        public.poc_actual_result_rankings ARR_1,
-        result_1 R_1,
-        public.poc_actual_result_rankings ARR_2,
-        result_2 R_2,
-        public.poc_actual_result_rankings ALG_ARR,
-        algolia_result ALG_R
-    WHERE ARR_1.result_id = R_1.result_id
-    AND ARR_2.result_id = R_2.result_id
-    AND ALG_ARR.result_id = ALG_R.result_id
-    AND ARR_1.rank = ARR_2.rank
-    AND ARR_1.rank = ALG_ARR.rank
-    ORDER BY ARR_1.rank;
+        R_1.rank,
+        R_1.article_id as article_id_1,
+        CAST(R_1.relevance_score AS NUMERIC(6, 3)) AS relevance_1,
+        R_2.rank,
+        R_2.article_id as article_id_2,
+        CAST(R_2.relevance_score AS NUMERIC(6, 3)) as relevance_2
+    FROM result_1 R_1
+    FULL JOIN result_2 R_2 ON R_1.rank = R_2.rank
+    ORDER BY R_1.rank, R_2.rank;
 $$
 LANGUAGE SQL;
 
