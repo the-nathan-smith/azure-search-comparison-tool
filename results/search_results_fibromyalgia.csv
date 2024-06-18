@@ -1,0 +1,23 @@
+url,score,rank,title,slug
+/nhsuk/conditions/fibromyalgia/,0.06557377049180328,1,Fibromyalgia,fibromyalgia
+/nhsuk/conditions/arthritis/,0.06302657915561141,2,Arthritis,arthritis
+/nhsuk/conditions/polymyalgia-rheumatica/,0.061801046176046176,3,Polymyalgia rheumatica,polymyalgia-rheumatica
+/nhsuk/conditions/chronic-fatigue-syndrome-cfs/,0.05974264705882353,4,Myalgic encephalomyelitis or chronic fatigue syndrome (ME/CFS),chronic-fatigue-syndrome-cfs
+/nhsuk/conditions/rheumatoid-arthritis/,0.058068752767978495,5,Rheumatoid arthritis,rheumatoid-arthritis
+/nhsuk/conditions/complex-regional-pain-syndrome/,0.054563492063492064,6,Complex regional pain syndrome,complex-regional-pain-syndrome
+/nhsuk/conditions/neurofibromatosis-type-2/,0.04664224664224664,7,Neurofibromatosis type 2,neurofibromatosis-type-2
+/nhsuk/conditions/medically-unexplained-symptoms/,0.04614695340501792,8,Medically unexplained symptoms,medically-unexplained-symptoms
+/nhsuk/conditions/neurofibromatosis-type-1/,0.045979778526721235,9,Neurofibromatosis type 1,neurofibromatosis-type-1
+/nhsuk/conditions/costochondritis/,0.045535714285714284,10,Costochondritis,costochondritis
+/nhsuk/conditions/sjogrens-syndrome/,0.043064182194616975,11,Sjögren's syndrome,sjogrens-syndrome
+/nhsuk/conditions/ehlers-danlos-syndromes/,0.04186764422149335,12,Ehlers-Danlos syndromes,ehlers-danlos-syndromes
+/nhsuk/conditions/cystic-fibrosis/,0.041592039800995025,13,Cystic fibrosis,cystic-fibrosis
+/nhsuk/conditions/multiple-sclerosis/,0.041111534069280545,14,Multiple sclerosis,multiple-sclerosis
+/nhsuk/conditions/idiopathic-pulmonary-fibrosis/,0.04073059360730594,15,Idiopathic pulmonary fibrosis,idiopathic-pulmonary-fibrosis
+/nhsuk/conditions/peripheral-neuropathy/,0.03888888888888889,16,Peripheral neuropathy,peripheral-neuropathy
+/nhsuk/conditions/vulvodynia/,0.038649789029535864,17,Vulvodynia (vulval pain),vulvodynia
+/nhsuk/conditions/amyloidosis/,0.038299253489126904,18,Amyloidosis,amyloidosis
+/nhsuk/conditions/joint-hypermobility-syndrome/,0.02843888664784187,19,Joint hypermobility syndrome,joint-hypermobility-syndrome
+/nhsuk/conditions/erythromelalgia/,0.028205128205128206,20,Erythromelalgia,erythromelalgia
+/nhsuk/conditions/fibroids/,0.02631578947368421,21,Fibroids,fibroids
+/nhsuk/conditions/repetitive-strain-injury-rsi/,0.025974025974025976,22,Repetitive strain injury (RSI),repetitive-strain-injury-rsi

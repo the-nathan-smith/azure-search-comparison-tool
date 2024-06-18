@@ -1,0 +1,21 @@
+url,score,rank,title,slug
+/nhsuk/conditions/sepsis/,0.06557377049180328,1,Sepsis,sepsis
+/nhsuk/conditions/acute-respiratory-distress-syndrome/,0.062135433523932825,2,Acute respiratory distress syndrome (ARDS),acute-respiratory-distress-syndrome
+/nhsuk/conditions/listeriosis/,0.06069231211546202,3,Listeriosis,listeriosis
+/nhsuk/conditions/peritonitis/,0.05698327610772429,4,Peritonitis,peritonitis
+/nhsuk/conditions/leptospirosis/,0.055817416422221725,5,Leptospirosis (Weil's disease),leptospirosis
+/nhsuk/conditions/baby/health/is-your-baby-or-toddler-seriously-ill/,0.0542969207352769,6,Is your baby or toddler seriously ill?,is-your-baby-or-toddler-seriously-ill
+/nhsuk/conditions/febrile-seizures/,0.05408290339797189,7,Febrile seizures,febrile-seizures
+/nhsuk/conditions/cellulitis/,0.05393939393939394,8,Cellulitis,cellulitis
+/nhsuk/conditions/chest-infection/,0.05385864135864136,9,Chest infection,chest-infection
+/nhsuk/conditions/hib/,0.051632245169886744,10,Haemophilus influenzae type b (Hib),hib
+/nhsuk/conditions/septic-arthritis/,0.04787506400409626,11,Septic arthritis,septic-arthritis
+/nhsuk/conditions/meningitis/,0.046176046176046176,12,Meningitis,meningitis
+/nhsuk/conditions/c-difficile/,0.04574275362318841,13,Clostridium difficile (C. diff) infection,c-difficile
+/nhsuk/conditions/sinusitis-sinus-infection/,0.04485852311939269,14,Sinusitis (sinus infection),sinusitis-sinus-infection
+/nhsuk/conditions/brain-abscess/,0.04455662862159789,15,Brain abscess,brain-abscess
+/nhsuk/conditions/kidney-infection/,0.044196428571428574,16,Kidney infection,kidney-infection
+/nhsuk/conditions/mrsa/,0.03888888888888889,17,MRSA,mrsa
+/nhsuk/conditions/acute-kidney-injury/,0.03076923076923077,18,Acute kidney injury,acute-kidney-injury
+/nhsuk/conditions/confusion/,0.02564102564102564,19,Sudden confusion (delirium),confusion
+/nhsuk/conditions/encephalitis/,0.02531645569620253,20,Encephalitis,encephalitis
