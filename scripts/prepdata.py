@@ -28,6 +28,7 @@ from azure.search.documents.indexes.models import (
     SemanticField,
     SemanticSearch,
     SimpleField,
+    SynonymMap,
     VectorSearch,
     VectorSearchProfile,
     HnswAlgorithmConfiguration,
@@ -43,7 +44,8 @@ AZURE_OPENAI_SERVICE = os.environ.get("AZURE_OPENAI_SERVICE")
 AZURE_OPENAI_DEPLOYMENT_NAME = os.environ.get("AZURE_OPENAI_DEPLOYMENT_NAME")
 AZURE_OPENAI_DEPLOYMENT_LARGE_NAME = os.environ.get("AZURE_OPENAI_DEPLOYMENT_LARGE_NAME")
 AZURE_SEARCH_SERVICE_ENDPOINT = os.environ.get("AZURE_SEARCH_SERVICE_ENDPOINT")
-AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME = os.environ.get("AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME")
+# AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME = os.environ.get("AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME")
+AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME = 'test-name'
 AZURE_SEARCH_NHS_COMBINED_INDEX_NAME = os.environ.get("AZURE_SEARCH_NHS_COMBINED_INDEX_NAME")
 
 REDIS_HOST = os.environ.get("REDIS_HOST")
@@ -113,10 +115,34 @@ def create_search_index_nhs_conditions():
         )
         print(f"Creating {AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME} search index")
         index_client.create_index(index)
+        create_and_get_synonym_map(index_client)
         return True
     else:
         print(f"Search index {AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME} already exists")
         return False
+
+def create_and_get_synonym_map(index_client):
+    synonyms = [
+        "cancer, gastroenteritis"
+    ]
+    synonym_map_name = "test-syn-map"
+    synonym_map = SynonymMap(name=synonym_map_name, synonyms=synonyms)
+
+    try:
+        existing_map = index_client.get_synonym_map(synonym_map_name)
+        print(f"Synonym map '{synonym_map_name}' already exists.")
+    except Exception as e:
+        if "404" in str(e):
+            index_client.create_synonym_map(synonym_map)
+            print(f"Synonym map '{synonym_map_name}' created successfully.")
+        else:
+            raise
+
+    result = index_client.get_synonym_map(synonym_map_name)
+    for syn in result.synonyms:
+        print("    {}".format(syn))
+
+    print(f"Create and get new Synonym Map '{synonym_map_name}' succeeded.")
 
 def populate_search_index_nhs_conditions():
     print(f"Populating search index {AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME} with documents")
@@ -141,7 +167,7 @@ def populate_search_index_nhs_conditions():
     batched_treated_items = []
     batch_size = 4
 
-    for item in items:
+    for item in items[:5]:
 
         treated_item = {
             "id": item["id"],
@@ -305,6 +331,7 @@ def create_search_index_nhs_combined_data() -> bool:
         endpoint=AZURE_SEARCH_SERVICE_ENDPOINT,
         credential=azure_credential,
     )
+    create_and_get_synonym_map(index_client)
     if AZURE_SEARCH_NHS_COMBINED_INDEX_NAME not in index_client.list_index_names():
         index = SearchIndex(
             name=AZURE_SEARCH_NHS_COMBINED_INDEX_NAME,
