@@ -6,4 +6,3 @@ redis==5.0.4
 postgres==4.0
 beautifulsoup4==4.12.3
 keybert==0.8.4
-psycopg2-binary==2.9.9
