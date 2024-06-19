@@ -18,7 +18,7 @@ wagtail_db_connection = Postgres(f"postgresql://{quote_plus(POSTGRES_CMS_ADMIN_N
 path = './app/backend/data/search_queries'
 for filename in glob.glob(os.path.join(path, '*.json')):
    
-    print(filename)
+    print(f"Exporting results from {filename}")
 
     with open(os.path.join(os.getcwd(), filename), 'r') as f: # open in readonly mode
 
@@ -54,21 +54,15 @@ for filename in glob.glob(os.path.join(path, '*.json')):
                     output_result["title"] = page[1]
                     output_result["slug"] = page[0]
 
-            print(output)
-
             # Save the JSON data to a file
             with open(jsonFileName, 'w') as file:
                 json.dump(output, file)
 
-            # Load the JSON data
-            json_data = json.dumps(output)
-
-            # Parse the JSON data into a Python dictionary
-            data = pd.read_json(json_data)
-
-            # Convert the dictionary to a DataFrame
-            df = pd.DataFrame(data)
+            # Convert the output to a DataFrame
+            df = pd.DataFrame(output)
 
             # Write the DataFrame to a CSV file
             df.to_csv(csvFileName, index=False)
+
+            print(f"Exported '{query}' results to {jsonFileName} and {csvFileName}")
 
