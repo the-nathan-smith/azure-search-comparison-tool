@@ -59,7 +59,7 @@
                 "score": "0.05557186344857577734",
                 "rank": 5,
                 "id": "nhsuk_conditions_stomach-ache",
-                "relevance": 2,
+                "relevance": 1,
                 "title": "Stomach ache"
             },
             {
@@ -205,6 +205,14 @@
                 "id": "nhsuk_conditions_endoscopy",
                 "relevance": 0,
                 "title": "Endoscopy"
+            },
+            {
+                "url": "/nhsuk/conditions/diarrhoea-and-vomiting/",
+                "score": "0.0",
+                "rank": 100,
+                "id": "nhsuk_conditions_diarrhoea-and-vomiting",
+                "relevance": 3,
+                "title": "Diarrhoea and vomiting"
             }
         ]
     },

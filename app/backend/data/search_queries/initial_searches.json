@@ -3,87 +3,361 @@
         "query": "Cancer",
         "rankings": [
             {
-                "id": "cancer",
-                "relevance": 1.0
+                "url": "/nhsuk/conditions/cancer/",
+                "score": "0.53243315768930523030",
+                "rank": 1,
+                "id": "nhsuk_conditions_cancer",
+                "relevance": 3,
+                "title": "Cancer"
             },
             {
-                "id": "bowel-cancer",
-                "relevance": 0.94
+                "url": "/nhsuk/conditions/bladder-cancer/",
+                "score": "0.50187312243738074940",
+                "rank": 2,
+                "id": "nhsuk_conditions_bladder-cancer",
+                "relevance": 0,
+                "title": "Bladder cancer"
             },
             {
-                "id": "lung-cancer",
-                "relevance": 0.94
+                "url": "/nhsuk/conditions/non-hodgkin-lymphoma/",
+                "score": "0.49865010611279268009",
+                "rank": 3,
+                "id": "nhsuk_conditions_non-hodgkin-lymphoma",
+                "relevance": 0,
+                "title": "Non-Hodgkin lymphoma"
             },
             {
-                "id": "prostate-cancer",
-                "relevance": 0.94
+                "url": "/nhsuk/conditions/lung-cancer/",
+                "score": "0.49705206996690754380",
+                "rank": 4,
+                "id": "nhsuk_conditions_lung-cancer",
+                "relevance": 1,
+                "title": "Lung cancer"
             },
             {
-                "id": "head-and-neck-cancer",
-                "relevance": 0.85
+                "url": "/nhsuk/conditions/head-and-neck-cancer/",
+                "score": "0.48298841098589161342",
+                "rank": 5,
+                "id": "nhsuk_conditions_head-and-neck-cancer",
+                "relevance": 0,
+                "title": "Head and neck cancer"
+            },
+            {
+                "url": "/nhsuk/conditions/malignant-brain-tumour/",
+                "score": "0.30402121078214759171",
+                "rank": 6,
+                "id": "nhsuk_conditions_malignant-brain-tumour",
+                "relevance": 0,
+                "title": "Malignant brain tumour (brain cancer)"
+            },
+            {
+                "url": "/nhsuk/conditions/predictive-genetic-tests-cancer/",
+                "score": "0.28499278499278499286",
+                "rank": 7,
+                "id": "nhsuk_conditions_predictive-genetic-tests-cancer",
+                "relevance": 0,
+                "title": "Predictive genetic tests for cancer risk genes"
+            },
+            {
+                "url": "/nhsuk/conditions/hodgkin-lymphoma/",
+                "score": "0.27651257609596196107",
+                "rank": 8,
+                "id": "nhsuk_conditions_hodgkin-lymphoma",
+                "relevance": 0,
+                "title": "Hodgkin lymphoma"
+            },
+            {
+                "url": "/nhsuk/conditions/chemotherapy/",
+                "score": "0.27302275189599133269",
+                "rank": 9,
+                "id": "nhsuk_conditions_chemotherapy",
+                "relevance": 0,
+                "title": "Chemotherapy"
+            },
+            {
+                "url": "/nhsuk/conditions/vulval-cancer/",
+                "score": "0.27195301845306020203",
+                "rank": 10,
+                "id": "nhsuk_conditions_vulval-cancer",
+                "relevance": 0,
+                "title": "Vulval cancer"
+            },
+            {
+                "url": "/nhsuk/conditions/phaeochromocytoma/",
+                "score": "0.26511025343445521039",
+                "rank": 11,
+                "id": "nhsuk_conditions_phaeochromocytoma",
+                "relevance": 0,
+                "title": "Phaeochromocytoma"
+            },
+            {
+                "url": "/nhsuk/conditions/prostate-cancer/",
+                "score": "0.24219989423585404549",
+                "rank": 12,
+                "id": "nhsuk_conditions_prostate-cancer",
+                "relevance": 2,
+                "title": "Prostate cancer"
+            },
+            {
+                "url": "/nhsuk/conditions/nasal-and-sinus-cancer/",
+                "score": "0.23511904761904761906",
+                "rank": 13,
+                "id": "nhsuk_conditions_nasal-and-sinus-cancer",
+                "relevance": 0,
+                "title": "Nasal and sinus cancer"
+            },
+            {
+                "url": "/nhsuk/conditions/bone-cancer/",
+                "score": "0.23189014736329314338",
+                "rank": 14,
+                "id": "nhsuk_conditions_bone-cancer",
+                "relevance": 0,
+                "title": "Bone cancer"
+            },
+            {
+                "url": "/nhsuk/conditions/brain-tumours/",
+                "score": "0.22710622710622710616",
+                "rank": 15,
+                "id": "nhsuk_conditions_brain-tumours",
+                "relevance": 0,
+                "title": "Brain tumours"
+            },
+            {
+                "url": "/nhsuk/conditions/womb-cancer/",
+                "score": "0.05424410712081944958",
+                "rank": 16,
+                "id": "nhsuk_conditions_womb-cancer",
+                "relevance": 0,
+                "title": "Womb (uterus) cancer"
+            },
+            {
+                "url": "/nhsuk/conditions/laryngeal-cancer/",
+                "score": "0.05286036036036036035",
+                "rank": 17,
+                "id": "nhsuk_conditions_laryngeal-cancer",
+                "relevance": 0,
+                "title": "Laryngeal (larynx) cancer"
+            },
+            {
+                "url": "/nhsuk/nhs-services/hospitals/guide-to-nhs-waiting-times-in-england/",
+                "score": "0.04479578392621870884",
+                "rank": 18,
+                "id": "nhsuk_nhs-services_hospitals_guide-to-nhs-waiting-times-in-england",
+                "relevance": 0,
+                "title": "Guide to NHS waiting times in England"
+            },
+            {
+                "url": "/nhsuk/conditions/chronic-lymphocytic-leukaemia/",
+                "score": "0.04147640791476407915",
+                "rank": 19,
+                "id": "nhsuk_conditions_chronic-lymphocytic-leukaemia",
+                "relevance": 0,
+                "title": "Chronic lymphocytic leukaemia"
+            },
+            {
+                "url": "/nhsuk/conditions/cervical-cancer/",
+                "score": "0.03982456140350877192",
+                "rank": 20,
+                "id": "nhsuk_conditions_cervical-cancer",
+                "relevance": 0,
+                "title": "Cervical cancer"
+            },
+            {
+                "url": "/nhsuk/conditions/acute-myeloid-leukaemia/",
+                "score": "0.03952991452991452991",
+                "rank": 21,
+                "id": "nhsuk_conditions_acute-myeloid-leukaemia",
+                "relevance": 0,
+                "title": "Acute myeloid leukaemia"
+            },
+            {
+                "url": "/nhsuk/conditions/vaginal-cancer/",
+                "score": "0.03847435043304463690",
+                "rank": 22,
+                "id": "nhsuk_conditions_vaginal-cancer",
+                "relevance": 0,
+                "title": "Vaginal cancer"
+            },
+            {
+                "url": "/nhsuk/conditions/persistent-trophoblastic-disease-choriocarcinoma/",
+                "score": "0.02597402597402597402",
+                "rank": 23,
+                "id": "nhsuk_conditions_persistent-trophoblastic-disease-choriocarcinoma",
+                "relevance": 0,
+                "title": "Persistent trophoblastic disease and choriocarcinoma"
             }
         ]
     },
     {
         "query": "Acromegaly",
-        "rankings": [
-            {
-                "id": "acromegaly",
-                "relevance": 1.0
-            },
-            {
-                "id": "hirsutism",
-                "relevance": 0.05
-            }
-        ]
+        "rankings": []
     },
     {
         "query": "Insomnia",
-        "rankings": [
-            {
-                "id": "insomnia",
-                "relevance": 1.0
-            },
-            {
-                "id": "memory-loss-amnesia",
-                "relevance": 0.74
-            },
-            {
-                "id": "sleep-paralysis",
-                "relevance": 0.71
-            },
-            {
-                "id": "tension-headaches",
-                "relevance": 0.32
-            },
-            {
-                "id": "stop-smoking-treatments",
-                "relevance": 0.28
-            }
-        ]
+        "rankings": []
     },
     {
         "query": "Blood clot",
         "rankings": [
             {
-                "id": "blood clots",
-                "relevance": 1.0
+                "url": "/nhsuk/conditions/deep-vein-thrombosis-dvt/",
+                "score": "0.06453291699193338538",
+                "rank": 1,
+                "id": "nhsuk_conditions_deep-vein-thrombosis-dvt",
+                "relevance": 2,
+                "title": "DVT (deep vein thrombosis)"
             },
             {
-                "id": "thrombophilia",
-                "relevance": 0.82
+                "url": "/nhsuk/conditions/blood-clots/",
+                "score": "0.06269759953161592505",
+                "rank": 2,
+                "id": "nhsuk_conditions_blood-clots",
+                "relevance": 3,
+                "title": "Blood clots"
             },
             {
-                "id": "pulmonary-embolism",
-                "relevance": 0.81
+                "url": "/nhsuk/conditions/pulmonary-embolism/",
+                "score": "0.06253054740957966765",
+                "rank": 3,
+                "id": "nhsuk_conditions_pulmonary-embolism",
+                "relevance": 1,
+                "title": "Pulmonary embolism"
             },
             {
-                "id": "antiphospholipid-syndrome",
-                "relevance": 0.81
+                "url": "/nhsuk/conditions/thrombophilia/",
+                "score": "0.06164459390265841879",
+                "rank": 4,
+                "id": "nhsuk_conditions_thrombophilia",
+                "relevance": 1,
+                "title": "Thrombophilia"
             },
             {
-                "id": "deep-vein-thrombosis-dvt",
-                "relevance": 0.81
+                "url": "/nhsuk/conditions/anticoagulants/",
+                "score": "0.06139101665048369117",
+                "rank": 5,
+                "id": "nhsuk_conditions_anticoagulants",
+                "relevance": 1,
+                "title": "Anticoagulant medicines"
+            },
+            {
+                "url": "/nhsuk/conditions/antiphospholipid-syndrome/",
+                "score": "0.05884554042448779292",
+                "rank": 6,
+                "id": "nhsuk_conditions_antiphospholipid-syndrome",
+                "relevance": 0,
+                "title": "Antiphospholipid syndrome (APS)"
+            },
+            {
+                "url": "/nhsuk/conditions/haemophilia/",
+                "score": "0.05771452335843999815",
+                "rank": 7,
+                "id": "nhsuk_conditions_haemophilia",
+                "relevance": 0,
+                "title": "Haemophilia"
+            },
+            {
+                "url": "/nhsuk/conditions/cavernous-sinus-thrombosis/",
+                "score": "0.05697594106135604926",
+                "rank": 8,
+                "id": "nhsuk_conditions_cavernous-sinus-thrombosis",
+                "relevance": 0,
+                "title": "Cavernous sinus thrombosis"
+            },
+            {
+                "url": "/nhsuk/conditions/heart-attack/",
+                "score": "0.05642772055216873380",
+                "rank": 9,
+                "id": "nhsuk_conditions_heart-attack",
+                "relevance": 0,
+                "title": "Heart attack"
+            },
+            {
+                "url": "/nhsuk/conditions/phlebitis/",
+                "score": "0.05540293040293040293",
+                "rank": 10,
+                "id": "nhsuk_conditions_phlebitis",
+                "relevance": 0,
+                "title": "Phlebitis (superficial thrombophlebitis)"
+            },
+            {
+                "url": "/nhsuk/pregnancy/related-conditions/complications/deep-vein-thrombosis/",
+                "score": "0.05375534234404440336",
+                "rank": 11,
+                "id": "nhsuk_pregnancy_related-conditions_complications_deep-vein-thrombosis",
+                "relevance": 1,
+                "title": "Deep vein thrombosis in pregnancy"
+            },
+            {
+                "url": "/nhsuk/conditions/carotid-endarterectomy/",
+                "score": "0.04239877769289533995",
+                "rank": 12,
+                "id": "nhsuk_conditions_carotid-endarterectomy",
+                "relevance": 0,
+                "title": "Carotid endarterectomy"
+            },
+            {
+                "url": "/nhsuk/conditions/bleeding-from-the-bottom-rectal-bleeding/",
+                "score": "0.04206349206349206349",
+                "rank": 13,
+                "id": "nhsuk_conditions_bleeding-from-the-bottom-rectal-bleeding",
+                "relevance": 0,
+                "title": "Bleeding from the bottom (rectal bleeding)"
+            },
+            {
+                "url": "/nhsuk/contraception/methods-of-contraception/female-sterilisation/complications/",
+                "score": "0.04180602006688963211",
+                "rank": 14,
+                "id": "nhsuk_contraception_methods-of-contraception_female-sterilisation_complications",
+                "relevance": 0,
+                "title": "Complications of female sterilisation"
+            },
+            {
+                "url": "/nhsuk/conditions/leg-ulcer/",
+                "score": "0.04109589041095890411",
+                "rank": 15,
+                "id": "nhsuk_conditions_leg-ulcer",
+                "relevance": 0,
+                "title": "Venous leg ulcer"
+            },
+            {
+                "url": "/nhsuk/conditions/blood-transfusion/",
+                "score": "0.04036036036036036035",
+                "rank": 16,
+                "id": "nhsuk_conditions_blood-transfusion",
+                "relevance": 0,
+                "title": "Blood transfusion"
+            },
+            {
+                "url": "/nhsuk/conditions/blood-tests/",
+                "score": "0.03948717948717948717",
+                "rank": 17,
+                "id": "nhsuk_conditions_blood-tests",
+                "relevance": 0,
+                "title": "Blood tests"
+            },
+            {
+                "url": "/nhsuk/conditions/post-menopausal-bleeding/",
+                "score": "0.02631578947368421052",
+                "rank": 18,
+                "id": "nhsuk_conditions_post-menopausal-bleeding",
+                "relevance": 0,
+                "title": "Postmenopausal bleeding"
+            },
+            {
+                "url": "/nhsuk/conditions/blood-groups/",
+                "score": "0.02597402597402597402",
+                "rank": 19,
+                "id": "nhsuk_conditions_blood-groups",
+                "relevance": 0,
+                "title": "Blood groups"
+            },
+            {
+                "url": "/nhsuk/conditions/cardiovascular-disease/",
+                "score": "0.02548701298701298701",
+                "rank": 20,
+                "id": "nhsuk_conditions_cardiovascular-disease",
+                "relevance": 0,
+                "title": "Cardiovascular disease"
             }
         ]
     },
@@ -91,20 +365,8 @@
         "query": "DVT",
         "rankings": [
             {
-                "id": "deep-vein-thrombosis-dvt",
-                "relevance": 1.0
-            },
-            {
-                "id": "thrombophilia",
-                "relevance": 0.45
-            },
-            {
-                "id": "leg-ulcer",
-                "relevance": 0.21
-            },
-            {
-                "id": "pulmonary-embolism",
-                "relevance": 0.21
+                "id": "nhsuk_conditions_deep-vein-thrombosis-dvt",
+                "relevance": 3
             }
         ]
     },
@@ -112,24 +374,8 @@
         "query": "Sickle cell disease",
         "rankings": [
             {
-                "id": "sickle-cell-disease",
-                "relevance": 1.0
-            },
-            {
-                "id": "thalassaemia",
-                "relevance": 0.7
-            },
-            {
-                "id": "priapism-painful-erections",
-                "relevance": 0.14
-            },
-            {
-                "id": "jaundice",
-                "relevance": 0.01
-            },
-            {
-                "id": "slapped-cheek-syndrome",
-                "relevance": 0.01
+                "id": "nhsuk_conditions_sickle-cell-disease",
+                "relevance": 3
             }
         ]
     },
@@ -137,8 +383,8 @@
         "query": "Broken nose",
         "rankings": [
             {
-                "id": "broken-nose",
-                "relevance": 1.0
+                "id": "nhsuk_conditions_broken-nose",
+                "relevance": 3
             }
         ]
     },
@@ -146,35 +392,17 @@
         "query": "Necrotising fasciitis",
         "rankings": [
             {
-                "id": "necrotising-fasciitis",
-                "relevance": 1.0
+                "id": "nhsuk_conditions_necrotising-fasciitis",
+                "relevance": 3
             }
         ]
     },
     {
         "query": "Labyrinthitis and vestibular neuritisncer",
-        "rankings": [
-            {
-                "id": "labyrinthitis",
-                "relevance": 1.0
-            },
-            {
-                "id": "menieres-disease",
-                "relevance": 0.65
-            }
-        ]
+        "rankings": []
     },
     {
         "query": "Dyspraxia in adults",
-        "rankings": [
-            {
-                "id": "developmental-coordination-disorder-dyspraxia-in-adults",
-                "relevance": 1.0
-            },
-            {
-                "id": "developmental-coordination-disorder-dyspraxia",
-                "relevance": 0.45
-            }
-        ]
+        "rankings": []
     }
 ]
