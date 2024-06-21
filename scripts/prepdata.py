@@ -28,6 +28,7 @@ from azure.search.documents.indexes.models import (
     SemanticField,
     SemanticSearch,
     SimpleField,
+    SynonymMap,
     VectorSearch,
     VectorSearchProfile,
     HnswAlgorithmConfiguration,
@@ -122,10 +123,27 @@ def create_search_index_nhs_conditions():
         )
         print(f"Creating {AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME} search index")
         index_client.create_index(index)
+        create_and_get_synonym_map(index_client)
         return True
     else:
         print(f"Search index {AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME} already exists")
         return False
+
+def create_synonym_map(index_client, synonym_map_name= "default-synonym-map"):
+    synonyms = [
+        "diarrhoea, gastroenteritis"
+    ]
+    
+    synonym_map = SynonymMap(name=synonym_map_name, format="solr", synonyms=synonyms)
+
+    try:
+        index_client.get_synonym_map(synonym_map_name)
+        print(f"Synonym map '{synonym_map_name}' already exists.")
+
+    except ResourceNotFoundError:
+
+        index_client.create_synonym_map(synonym_map)
+        print(f"Synonym map '{synonym_map_name}' created successfully.")
 
 def populate_search_index_nhs_conditions():
     print(f"Populating search index {AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME} with documents")
@@ -328,6 +346,8 @@ def create_search_index_nhs_combined_data() -> bool:
         endpoint=AZURE_SEARCH_SERVICE_ENDPOINT,
         credential=azure_credential,
     )
+    create_synonym_map(index_client, synonym_map_name="test-sm")
+
     if AZURE_SEARCH_NHS_COMBINED_INDEX_NAME not in index_client.list_index_names():
         index = SearchIndex(
             name=AZURE_SEARCH_NHS_COMBINED_INDEX_NAME,
@@ -340,11 +360,11 @@ def create_search_index_nhs_combined_data() -> bool:
                     sortable=True,
                     facetable=True,
                 ),
-                SearchableField(name="title", type=SearchFieldDataType.String),
-                SearchableField(name="description", type=SearchFieldDataType.String),
-                SearchableField(name="aspect_headers", collection=True, type=SearchFieldDataType.Collection(SearchFieldDataType.String)),
-                SearchableField(name="short_descriptions", collection=True, type=SearchFieldDataType.Collection(SearchFieldDataType.String)),
-                SearchableField(name="content", collection=True, type=SearchFieldDataType.Collection(SearchFieldDataType.String)),
+                SearchableField(name="title", type=SearchFieldDataType.String, synonym_map_names=["test-sm"]),
+                SearchableField(name="description", type=SearchFieldDataType.String, synonym_map_names=["test-sm"]),
+                SearchableField(name="aspect_headers", collection=True, type=SearchFieldDataType.Collection(SearchFieldDataType.String), synonym_map_names=["test-sm"]),
+                SearchableField(name="short_descriptions", collection=True, type=SearchFieldDataType.Collection(SearchFieldDataType.String), synonym_map_names=["test-sm"]),
+                SearchableField(name="content", collection=True, type=SearchFieldDataType.Collection(SearchFieldDataType.String), synonym_map_names=["test-sm"]),
                 SearchField(
                     name="title_vector",
                     type=SearchFieldDataType.Collection(SearchFieldDataType.Single),

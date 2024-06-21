@@ -94,7 +94,7 @@ class AlgoliaSiteSearch:
 
             inner_uri = urlparse(query_params["url"][0])
 
-            id = inner_uri.path.strip('/').replace("/", "_")
+            id = "nhsuk_" + inner_uri.path.strip('/').replace("/", "_")
 
             # print(link.text)
 

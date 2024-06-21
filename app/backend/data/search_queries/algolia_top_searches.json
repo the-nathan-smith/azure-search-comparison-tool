@@ -64,7 +64,7 @@
                 "score": "0.04689826302729528537",
                 "rank": 7,
                 "id": "nhsuk_medicines_methylphenidate-children",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Methylphenidate for children"
             },
             {
@@ -72,7 +72,7 @@
                 "score": "0.04667140488036010425",
                 "rank": 8,
                 "id": "nhsuk_conditions_learning-disabilities",
-                "relevance": 2,
+                "relevance": 0,
                 "title": "Learning disabilities"
             },
             {
@@ -96,7 +96,7 @@
                 "score": "0.04283775925566970343",
                 "rank": 11,
                 "id": "nhsuk_conditions_baby_babys-development_behaviour_dealing-with-child-behaviour-problems",
-                "relevance": 1,
+                "relevance": 0,
                 "title": "Dealing with child behaviour problems"
             },
             {
@@ -104,7 +104,7 @@
                 "score": "0.04278187565858798736",
                 "rank": 12,
                 "id": "nhsuk_mental-health_children-and-young-adults_advice-for-parents_anxiety-disorders-in-children",
-                "relevance": 1,
+                "relevance": 0,
                 "title": "Anxiety disorders in children"
             },
             {
@@ -120,7 +120,7 @@
                 "score": "0.04225352112676056339",
                 "rank": 14,
                 "id": "nhsuk_mental-health_children-and-young-adults_advice-for-parents_worried-about-your-teenager",
-                "relevance": 1,
+                "relevance": 0,
                 "title": "Worried about your teenager?"
             },
             {
