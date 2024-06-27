@@ -15,7 +15,7 @@
                 "score": "0.06309297912713472486",
                 "rank": 2,
                 "id": "nhsuk_conditions_ovarian-cyst",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Ovarian cyst"
             },
             {
@@ -71,7 +71,7 @@
                 "score": "0.04583053878828526717",
                 "rank": 9,
                 "id": "nhsuk_conditions_period-pain",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Period pain"
             },
             {
@@ -95,7 +95,7 @@
                 "score": "0.04316239316239316240",
                 "rank": 12,
                 "id": "nhsuk_conditions_heavy-periods",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Heavy periods"
             },
             {
@@ -103,7 +103,7 @@
                 "score": "0.04254877542548775426",
                 "rank": 13,
                 "id": "nhsuk_conditions_ovulation-pain",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Ovulation pain"
             },
             {
@@ -111,7 +111,7 @@
                 "score": "0.04060150375939849623",
                 "rank": 14,
                 "id": "nhsuk_conditions_hysterectomy",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Hysterectomy"
             },
             {
@@ -119,7 +119,7 @@
                 "score": "0.04013377926421404682",
                 "rank": 15,
                 "id": "nhsuk_conditions_ectopic-pregnancy",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Ectopic pregnancy"
             },
             {
@@ -151,7 +151,7 @@
                 "score": "0.03125000000000000000",
                 "rank": 19,
                 "id": "nhsuk_contraception_methods-of-contraception_progestogen-only-pill_what-is-it",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "What is the progestogen-only pill?"
             },
             {
@@ -159,7 +159,7 @@
                 "score": "0.02837022132796780684",
                 "rank": 20,
                 "id": "nhsuk_conditions_hysteroscopy",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Hysteroscopy"
             },
             {
@@ -183,7 +183,7 @@
                 "score": "0.02601351351351351351",
                 "rank": 23,
                 "id": "nhsuk_conditions_peritonitis",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Peritonitis"
             }
         ]
@@ -207,7 +207,7 @@
                 "score": "0.06352408975359795033",
                 "rank": 2,
                 "id": "nhsuk_conditions_genital-herpes",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Genital herpes"
             },
             {
@@ -223,7 +223,7 @@
                 "score": "0.06169529395335846949",
                 "rank": 4,
                 "id": "nhsuk_conditions_post-herpetic-neuralgia",
-                "relevance": 1,
+                "relevance": 2,
                 "title": "Post-herpetic neuralgia"
             },
             {
@@ -239,7 +239,7 @@
                 "score": "0.05652215451901233519",
                 "rank": 6,
                 "id": "nhsuk_conditions_herpes-simplex-eye-infections",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Herpes simplex eye infections"
             },
             {
@@ -247,7 +247,7 @@
                 "score": "0.05436228482003129891",
                 "rank": 7,
                 "id": "nhsuk_conditions_herpetic-whitlow",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Herpetic whitlow (whitlow finger)"
             },
             {
@@ -255,7 +255,7 @@
                 "score": "0.04712301587301587302",
                 "rank": 8,
                 "id": "nhsuk_conditions_chickenpox",
-                "relevance": 1,
+                "relevance": 2,
                 "title": "Chickenpox"
             },
             {
@@ -263,7 +263,7 @@
                 "score": "0.04500891265597147951",
                 "rank": 9,
                 "id": "nhsuk_conditions_neonatal-herpes",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Neonatal herpes (herpes in a baby)"
             },
             {
@@ -295,7 +295,7 @@
                 "score": "0.04137254901960784313",
                 "rank": 13,
                 "id": "nhsuk_conditions_cold-sores",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Cold sores"
             },
             {
@@ -327,7 +327,7 @@
                 "score": "0.03913630229419703103",
                 "rank": 17,
                 "id": "nhsuk_conditions_rashes-babies-and-children",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Rashes in babies and children"
             },
             {
@@ -400,7 +400,7 @@
                 "score": "0.06155998851894374283",
                 "rank": 2,
                 "id": "nhsuk_conditions_rashes-babies-and-children",
-                "relevance": 1,
+                "relevance": 2,
                 "title": "Rashes in babies and children"
             },
             {
@@ -408,7 +408,7 @@
                 "score": "0.05874262670037317926",
                 "rank": 3,
                 "id": "nhsuk_conditions_rheumatic-fever",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Rheumatic fever"
             },
             {
@@ -488,7 +488,7 @@
                 "score": "0.04231884057971014493",
                 "rank": 13,
                 "id": "nhsuk_conditions_febrile-seizures",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Febrile seizures"
             },
             {
@@ -593,7 +593,7 @@
                 "score": "0.06504494976203067160",
                 "rank": 1,
                 "id": "nhsuk_medicines_hydrocortisone",
-                "relevance": 2,
+                "relevance": 3,
                 "title": "Hydrocortisone"
             },
             {
@@ -609,7 +609,7 @@
                 "score": "0.05884554042448779292",
                 "rank": 3,
                 "id": "nhsuk_medicines_hydrocortisone-rectal-foam",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Hydrocortisone rectal foam"
             },
             {
@@ -617,7 +617,7 @@
                 "score": "0.05641025641025641026",
                 "rank": 4,
                 "id": "nhsuk_conditions_steroids",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Steroids"
             },
             {
@@ -657,7 +657,7 @@
                 "score": "0.04327731092436974789",
                 "rank": 9,
                 "id": "nhsuk_conditions_emollients",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Emollients"
             },
             {
@@ -673,7 +673,7 @@
                 "score": "0.04256965944272445820",
                 "rank": 11,
                 "id": "nhsuk_conditions_discoid-eczema",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Discoid eczema"
             },
             {
@@ -689,7 +689,7 @@
                 "score": "0.04195240016135538523",
                 "rank": 13,
                 "id": "nhsuk_conditions_cosmetic-procedures_non-surgical-cosmetic-procedures_skin-lightening",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Skin lightening"
             },
             {
@@ -697,7 +697,7 @@
                 "score": "0.04112554112554112554",
                 "rank": 14,
                 "id": "nhsuk_conditions_hidradenitis-suppurativa",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Hidradenitis suppurativa (HS)"
             },
             {
@@ -713,7 +713,7 @@
                 "score": "0.03897435897435897435",
                 "rank": 16,
                 "id": "nhsuk_conditions_contact-dermatitis",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Contact dermatitis"
             },
             {
@@ -747,6 +747,14 @@
                 "id": "nhsuk_conditions_steroid-inhalers",
                 "relevance": 0,
                 "title": "Steroid inhalers"
+            },
+            {
+                "url": "/nhsuk/medicines/hydrocortisone-for-skin/about-hydrocortisone-for-skin/",
+                "score": "0.0",
+                "rank": 20,
+                "id": "nhsuk_medicines_hydrocortisone-for-skin_about-hydrocortisone-for-skin",
+                "relevance": 3,
+                "title": "About hydrocortisone for skin"
             }
         ]
     },
@@ -758,7 +766,7 @@
                 "score": "0.06505334374186833203",
                 "rank": 1,
                 "id": "nhsuk_conditions_bowel-cancer-screening",
-                "relevance": 1,
+                "relevance": 2,
                 "title": "Bowel cancer screening"
             },
             {
@@ -782,7 +790,7 @@
                 "score": "0.05808080808080808082",
                 "rank": 4,
                 "id": "nhsuk_conditions_crohns-disease",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Crohn's disease"
             },
             {
@@ -790,7 +798,7 @@
                 "score": "0.05695940347970173986",
                 "rank": 5,
                 "id": "nhsuk_conditions_diverticular-disease-and-diverticulitis",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Diverticular disease and diverticulitis"
             },
             {
@@ -798,7 +806,7 @@
                 "score": "0.05693774131274131273",
                 "rank": 6,
                 "id": "nhsuk_conditions_inflammatory-bowel-disease",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Inflammatory bowel disease"
             },
             {
@@ -806,7 +814,7 @@
                 "score": "0.05628766658178422884",
                 "rank": 7,
                 "id": "nhsuk_conditions_cancer",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Cancer"
             },
             {
@@ -822,7 +830,7 @@
                 "score": "0.05506265664160401001",
                 "rank": 9,
                 "id": "nhsuk_conditions_carcinoid-syndrome",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Neuroendocrine tumours and carcinoid syndrome"
             },
             {
@@ -830,7 +838,7 @@
                 "score": "0.05305555555555555555",
                 "rank": 10,
                 "id": "nhsuk_live-well_eat-well_digestive-health_five-lifestyle-tips-for-a-healthy-tummy",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "5 lifestyle tips for a healthy tummy"
             },
             {
@@ -870,7 +878,7 @@
                 "score": "0.04434349989184512222",
                 "rank": 15,
                 "id": "nhsuk_conditions_irritable-bowel-syndrome-ibs",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Irritable bowel syndrome (IBS)"
             },
             {
@@ -886,7 +894,7 @@
                 "score": "0.04170989831915335131",
                 "rank": 17,
                 "id": "nhsuk_conditions_bowel-polyps",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Bowel polyps"
             },
             {
@@ -910,7 +918,7 @@
                 "score": "0.02631578947368421052",
                 "rank": 20,
                 "id": "nhsuk_conditions_mucositis",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Mucositis"
             },
             {
@@ -918,8 +926,24 @@
                 "score": "0.02597402597402597402",
                 "rank": 21,
                 "id": "nhsuk_conditions_ovarian-cancer",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Ovarian cancer"
+            },
+            {
+                "url": "/nhsuk/conditions/bowel-cancer/what-is-bowel-cancer/",
+                "score": "0.0",
+                "rank": 22,
+                "id": "nhsuk_conditions_bowel-cancer_what-is-bowel-cancer",
+                "relevance": 2,
+                "title": "What is bowel cancer?"
+            },
+            {
+                "url": "/nhsuk/conditions/bowel-cancer/symptoms/",
+                "score": "0.0",
+                "rank": 23,
+                "id": "nhsuk_conditions_bowel-cancer_symptoms",
+                "relevance": 3,
+                "title": "Symptoms of bowel cancer"
             }
         ]
     }
