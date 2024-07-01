@@ -25,13 +25,14 @@ CONFIG_OPENAI_TOKEN_CREATED_TIME = "openai_token_created_at"
 CONFIG_CREDENTIAL = "azure_credential"
 CONFIG_SEARCH_CONDITIONS_INDEX = "search_conditions"
 CONFIG_SEARCH_COMBINED_INDEX = "search_combined"
-CONFIG_INDEX_CONDITIONS = "index_conditions"
+CONFIG_SEARCH_MSH_INDEX = "search_msh"
 CONFIG_ALGOLIA_SEARCH = "algolia_search"
 CONFIG_REDIS_CLIENT = "redis_client"
 
 dataSetConfigDict = {
      "conditions": CONFIG_SEARCH_CONDITIONS_INDEX,
-     "combined": CONFIG_SEARCH_COMBINED_INDEX
+     "combined": CONFIG_SEARCH_COMBINED_INDEX,
+     "msh": CONFIG_SEARCH_MSH_INDEX
 }
 
 bp = Blueprint("routes", __name__, static_folder="static")
@@ -170,6 +171,7 @@ async def setup_clients():
     AZURE_SEARCH_SERVICE_ENDPOINT = os.getenv("AZURE_SEARCH_SERVICE_ENDPOINT")
     AZURE_SEARCH_CONDITIONS_INDEX_NAME = os.getenv("AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME")
     AZURE_SEARCH_COMBINED_INDEX_NAME = os.getenv("AZURE_SEARCH_NHS_COMBINED_INDEX_NAME")
+    AZURE_SEARCH_MSH_INDEX_NAME = os.getenv("AZURE_SEARCH_NHS_MSH_INDEX_NAME")
 
     POSTGRES_SERVER_NAME = os.getenv("POSTGRES_SERVER")
     POSTGRES_USER = os.getenv("POSTGRES_SERVER_ADMIN_LOGIN")
@@ -209,6 +211,12 @@ async def setup_clients():
         credential=azure_credential,
     )
 
+    search_client_msh = SearchClient(
+        endpoint=AZURE_SEARCH_SERVICE_ENDPOINT,
+        index_name=AZURE_SEARCH_MSH_INDEX_NAME,
+        credential=azure_credential,
+    )
+
     results = Results(POSTGRES_SERVER_NAME, POSTGRES_USER, POSTGRES_PASSWORD)
     approaches = Approaches("./data/approaches.json")
 
@@ -226,6 +234,10 @@ async def setup_clients():
         approaches)
     current_app.config[CONFIG_SEARCH_COMBINED_INDEX] = SearchText(
         search_client_combined,
+        results,
+        approaches)
+    current_app.config[CONFIG_SEARCH_MSH_INDEX] = SearchText(
+        search_client_msh,
         results,
         approaches)
 

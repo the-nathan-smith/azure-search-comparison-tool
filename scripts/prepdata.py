@@ -11,6 +11,7 @@ import uuid
 import redis
 import logging
 import numpy as np
+import requests
 from keybert import KeyBERT
 
 from openai import AzureOpenAI
@@ -40,12 +41,16 @@ from postgres import Postgres
 
 from azure.core.exceptions import ResourceNotFoundError
 
+from azure.core.credentials import AzureKeyCredential
+from azure.ai.textanalytics import TextAnalyticsClient, HealthcareEntityCategory
+
 AZURE_OPENAI_SERVICE = os.environ.get("AZURE_OPENAI_SERVICE")
 AZURE_OPENAI_DEPLOYMENT_NAME = os.environ.get("AZURE_OPENAI_DEPLOYMENT_NAME")
 AZURE_OPENAI_DEPLOYMENT_LARGE_NAME = os.environ.get("AZURE_OPENAI_DEPLOYMENT_LARGE_NAME")
 AZURE_SEARCH_SERVICE_ENDPOINT = os.environ.get("AZURE_SEARCH_SERVICE_ENDPOINT")
 AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME = os.environ.get("AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME")
 AZURE_SEARCH_NHS_COMBINED_INDEX_NAME = os.environ.get("AZURE_SEARCH_NHS_COMBINED_INDEX_NAME")
+AZURE_SEARCH_NHS_MSH_INDEX_NAME = os.environ.get("AZURE_SEARCH_NHS_MSH_INDEX_NAME")
 
 REDIS_HOST = os.environ.get("REDIS_HOST")
 REDIS_PORT = os.environ.get("REDIS_PORT")
@@ -58,6 +63,9 @@ POSTGRES_SERVER_ADMIN_PASSWORD = os.environ.get("POSTGRES_SERVER_ADMIN_PASSWORD"
 open_ai_token_cache = {}
 CACHE_KEY_TOKEN_CRED = "openai_token_cred"
 CACHE_KEY_CREATED_TIME = "created_time"
+
+AZURE_LANGUAGE_ENDPOINT = os.environ.get("AZURE_LANGUAGE_ENDPOINT")
+AZURE_LANGUAGE_KEY = os.environ.get("AZURE_LANGUAGE_KEY")
 
 def create_and_populate_search_index_nhs_conditions():
     created = create_search_index_nhs_conditions()
@@ -617,7 +625,7 @@ def populate_search_index_nhs_combined_data():
 
         print(f"Uploaded {len(items)} documents to index '{AZURE_SEARCH_NHS_COMBINED_INDEX_NAME}'")
 
-def get_keywords(kw_model, item):
+def get_keywords(kw_model, item) -> list[str]:
     str_aspect_headers = " ".join(item["aspect_headers"]) if "aspect_headers" in item else ""
     str_short_descs = " ".join(item["short_descriptions"]) if "short_descriptions" in item else ""
     str_content = " ".join(item["content"]) if "content" in item else ""
@@ -640,10 +648,435 @@ def get_keywords(kw_model, item):
 
     return selected_keywords
 
+def get_mesh_entity_data(entity_id: str):
+
+    try:
+        with open(f"./results/MESH/{entity_id}.json", 'rt') as f:
+            return json.load(f)
+    except OSError:
+        print(f"No existing file for {entity_id}")
+
+    try:
+        response = requests.post(f"https://id.nlm.nih.gov/mesh/{entity_id}.json")
+
+        if response.status_code == 200:
+            print(f"successful MESH query for: {entity_id}")
+
+            json_body = response.json()
+
+            with open(f"./results/MESH/{entity_id}.json", 'w') as f:
+                json.dump(json_body, f, indent=2)
+
+            return json_body
+    except:
+        print(f"MESH query failed for: {entity_id}")
+
+    return None
+
+def get_related_mesh_data(entity_id: str, medicine_name_keywords: list[str], processed_mesh_entity_ids: list[str]):
+    if entity_id in processed_mesh_entity_ids:
+        print(f"Already processed MESH entity {entity_id}. stopping this branch")
+        return
+
+    json_body = get_mesh_entity_data(entity_id)
+
+    if json_body is None:
+        print(f"No data for MESH entity {entity_id}. stopping this branch")
+        return
+
+    context = json_body["@context"]
+
+    if "label" in context:
+
+        label = json_body["label"]["@value"]
+
+        if label not in medicine_name_keywords:
+            medicine_name_keywords.append(label)
+
+        if "preferredTerm" in context:
+            preferred_term_entity_id = json_body["preferredTerm"].split('/')[-1]
+
+            # print(f"Preferred Term: {json_body["preferredTerm"]}")
+
+            get_related_mesh_data(preferred_term_entity_id, medicine_name_keywords, processed_mesh_entity_ids)
+
+        if "concept" in context:
+
+            if isinstance(json_body["concept"], list):
+
+                for concept in json_body["concept"]:
+
+                    # print(f"Concept: {concept}")
+
+                    concept_entity_id = concept.split('/')[-1]
+
+                    get_related_mesh_data(concept_entity_id, medicine_name_keywords, processed_mesh_entity_ids)
+            else:
+
+                # print(f"Concept: {json_body["concept"]}")
+
+                concept_entity_id = json_body["concept"].split('/')[-1]
+
+                get_related_mesh_data(concept_entity_id, medicine_name_keywords, processed_mesh_entity_ids)
+
+
+    if "prefLabel" in context:
+
+        preferred_label = json_body["prefLabel"]["@value"]
+
+        if preferred_label not in medicine_name_keywords:
+            medicine_name_keywords.append(preferred_label)
+
+    processed_mesh_entity_ids.append(entity_id)
+
+def get_medicine_name_keywords(text_analytics_client: TextAnalyticsClient, item) -> list[str]:
+
+    documents = [
+        item["title"],
+        item["description"]
+    ]
+
+    if "aspect_headers" in item:
+        documents = documents + item["aspect_headers"]
+
+    if "short_descriptions" in item:
+        documents = documents + item["short_descriptions"]
+
+    if "content" in item:
+        documents = documents + item["content"]
+
+    docs = []
+
+    for batch in [documents[i:i+20] for i in range(0,len(documents),20)]:
+        # print(batch)
+
+        poller = text_analytics_client.begin_analyze_healthcare_entities(batch, language="en")
+        result = poller.result()
+
+        docs = docs + [doc for doc in result if not doc.is_error]
+
+    mesh_entity_ids = []
+    medicine_name_keywords = []
+
+    for doc in docs:
+
+        entities = [entity for entity in doc.entities if entity.category == HealthcareEntityCategory.MEDICATION_NAME]
+
+        for entity in entities:
+
+            if entity.confidence_score < 0.8:
+                print(f"{entity.text} has low confidence: {entity.confidence_score}. Skipping...")
+                break
+
+            if entity.data_sources is not None:
+
+                mesh_data_sources = [data_source for data_source in entity.data_sources if data_source.name == "MSH"]
+
+                if len(mesh_data_sources) > 0:
+
+                    print(f"Acquiring MESH Data Source info for medication {entity.text}:")
+
+                    for data_source in mesh_data_sources:
+
+                        get_related_mesh_data(data_source.entity_id, medicine_name_keywords, mesh_entity_ids)
+
+    print("MEDICINE NAME KEYWORDS:")
+    print(medicine_name_keywords)
+
+    return sorted(medicine_name_keywords)
+
 def create_and_populate_nhs_combined_data_index():
     created = create_search_index_nhs_combined_data()
     if created:
         populate_search_index_nhs_combined_data()
+
+def create_search_index_nhs_msh() -> bool:
+    index_client = SearchIndexClient(
+        endpoint=AZURE_SEARCH_SERVICE_ENDPOINT,
+        credential=azure_credential,
+    )
+    create_synonym_map(index_client, synonym_map_name="test-sm")
+
+    if AZURE_SEARCH_NHS_MSH_INDEX_NAME not in index_client.list_index_names():
+        index = SearchIndex(
+            name=AZURE_SEARCH_NHS_MSH_INDEX_NAME,
+            fields=[
+                SimpleField(
+                    name="id",
+                    type=SearchFieldDataType.String,
+                    key=True,
+                    filterable=True,
+                    sortable=True,
+                    facetable=True,
+                ),
+                SearchableField(name="title", type=SearchFieldDataType.String, synonym_map_names=["test-sm"]),
+                SearchableField(name="description", type=SearchFieldDataType.String, synonym_map_names=["test-sm"]),
+                SearchableField(name="aspect_headers", collection=True, type=SearchFieldDataType.Collection(SearchFieldDataType.String), synonym_map_names=["test-sm"]),
+                SearchableField(name="short_descriptions", collection=True, type=SearchFieldDataType.Collection(SearchFieldDataType.String), synonym_map_names=["test-sm"]),
+                SearchableField(name="content", collection=True, type=SearchFieldDataType.Collection(SearchFieldDataType.String), synonym_map_names=["test-sm"]),
+                SearchField(
+                    name="title_vector",
+                    type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
+                    searchable=True,
+                    vector_search_dimensions=3072,
+                    vector_search_profile_name="knn-vector-profile"
+                ),
+                SearchField(
+                    name="description_vector",
+                    type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
+                    searchable=True,
+                    vector_search_dimensions=3072,
+                    vector_search_profile_name="knn-vector-profile"
+                ),
+                SearchField(
+                    name="aspect_headers_vector",
+                    type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
+                    searchable=True,
+                    vector_search_dimensions=3072,
+                    vector_search_profile_name="knn-vector-profile"
+                ),
+                SearchField(
+                    name="short_descriptions_vector",
+                    type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
+                    searchable=True,
+                    vector_search_dimensions=3072,
+                    vector_search_profile_name="knn-vector-profile"
+                ),
+                SearchField(
+                    name="content_vector",
+                    type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
+                    searchable=True,
+                    vector_search_dimensions=3072,
+                    vector_search_profile_name="knn-vector-profile"
+                ),
+                SearchField(
+                    name="keywords",
+                    type=SearchFieldDataType.Collection(SearchFieldDataType.String),
+                    searchable=True
+                ),
+                SearchField(
+                    name="medicine_name_keywords",
+                    type=SearchFieldDataType.Collection(SearchFieldDataType.String),
+                    searchable=True
+                ),
+                SearchField(
+                    name="content_types",
+                    type=SearchFieldDataType.Collection(SearchFieldDataType.String),
+                    searchable=False,
+                    filterable=True,
+                    sortable=False,
+                    facetable=True
+                ),
+                SimpleField(
+                    name="url",
+                    type=SearchFieldDataType.String,
+                    key=False,
+                    searchable=False,
+                    filterable=False,
+                    sortable=False,
+                    facetable=False,
+                )
+            ],
+            vector_search=VectorSearch(
+                algorithms=[ExhaustiveKnnAlgorithmConfiguration(name="exhaustiveKnn")],
+                profiles=[VectorSearchProfile(
+                    name="knn-vector-profile",
+                    algorithm_configuration_name="exhaustiveKnn")]
+            ),
+            semantic_search=SemanticSearch(
+                configurations=[
+                    SemanticConfiguration(
+                        name="semantic-config-keywords",
+                        prioritized_fields=SemanticPrioritizedFields(
+                            title_field=SemanticField(field_name="title"),
+                            content_fields=[
+                                SemanticField(field_name="description"),
+                                SemanticField(field_name="short_descriptions")
+                            ],
+                            keywords_fields=[
+                                SemanticField(field_name="medicine_name_keywords"),
+                                SemanticField(field_name="keywords")
+                            ]
+                        ),
+                    )
+                ]
+            ),
+            scoring_profiles=[
+                ScoringProfile(
+                    name="title_weighted",
+                    text_weights=TextWeights(
+                        weights={
+                            "title": 10.0,
+                            "keywords": 5.0,
+                            "description": 2.0,
+                            "aspect_headers": 1.5,
+                            "short_descriptions": 1.25,
+                            "content": 1.0,
+                            "medicine_name_keywords": 0.75,
+                            }))
+            ]
+        )
+        print(f"Creating {AZURE_SEARCH_NHS_MSH_INDEX_NAME} search index")
+        index_client.create_index(index)
+        return True
+    else:
+        print(f"Search index {AZURE_SEARCH_NHS_MSH_INDEX_NAME} already exists")
+        return True
+
+def populate_search_index_nhs_msh():
+    print(f"Populating search index {AZURE_SEARCH_NHS_MSH_INDEX_NAME} with documents")
+
+    search_client = SearchClient(
+        endpoint=AZURE_SEARCH_SERVICE_ENDPOINT,
+        credential=azure_credential,
+        index_name=AZURE_SEARCH_NHS_MSH_INDEX_NAME,
+    )
+
+    redis_client = redis.StrictRedis(
+        host=REDIS_HOST,
+        port=REDIS_PORT,
+        password=REDIS_PASSWORD,
+        ssl=True,
+        decode_responses=True
+    )
+
+    openai_client = AzureOpenAI(
+        api_key = get_openai_key(),  
+        api_version = "2024-02-01",
+        azure_endpoint = f"https://{AZURE_OPENAI_SERVICE}.openai.azure.com" 
+    )
+
+    kw_model = KeyBERT()
+
+    text_analytics_client = TextAnalyticsClient(
+        endpoint=AZURE_LANGUAGE_ENDPOINT,
+        credential=AzureKeyCredential(AZURE_LANGUAGE_KEY),
+    )
+
+    processed_item_ids = []
+
+    try:
+        with open("item_ids.json", encoding="utf-8") as f:
+            processed_item_ids = [line.rstrip() for line in f]
+
+        print(processed_item_ids)
+
+    except:
+        print("processed item ids file not found")
+
+    for file_name in ["data/conditions_1.json", "data/medicines_1.json", "data/articles_1.json"]:
+
+        with open(file_name, "r", encoding="utf-8") as file:
+            items = json.load(file)
+
+        print(f"loaded {len(items)} items from {file_name}")
+
+        batched_treated_items = []
+        batch_size = 12
+
+        for item in items:
+
+            item_id = item["url_path"].strip('/').replace("/", "_").replace("â","a").replace("ŷ","y")
+
+            if item_id in processed_item_ids:
+                print(f"{item_id} already exists. Skipping...")
+                continue
+
+            try:
+                existing_doc = search_client.get_document(item_id, ["id"])
+
+                print(f"{existing_doc["id"]} already exists. Skipping...")
+
+                with open("item_ids.json", 'a') as f: 
+                    f.write(item_id + '\n') 
+
+                continue
+            except ResourceNotFoundError:
+                print(f"Adding entry for {item_id}")
+
+            treated_item = {
+                "id": item_id,
+                "title": item["title"],
+                "description": item["description"],
+                "content_types": item["content_types"],
+                "url": item["url_path"]
+            }
+
+            aspect_headers = []
+            short_descriptions = []
+            rich_text_content = []
+
+            all_content = ""
+
+            for c in item["content"]:
+
+                aspect_header = clean_text(c["value"]["aspect_header"])
+
+                if len(aspect_header) > 0:
+                    aspect_headers.append(aspect_header)
+
+                short_description = c["value"]["short_description"]
+
+                if len(short_description) > 0:
+                    short_descriptions.append(short_description)
+
+                for inner_c in c["value"]["content"]:
+
+                    if inner_c["type"] == "richtext":
+
+                        content = clean_text(inner_c["value"])
+
+                        rich_text_content.append(content)
+
+                        if len(all_content) == 0:
+                            all_content = content
+                        else:
+                            all_content += " " + content
+
+            print(f"{treated_item["id"]} has {len(aspect_headers)} aspect headers and {len(short_descriptions)} short descriptions")
+
+            if len(aspect_headers) > 0:
+                treated_item["aspect_headers"] = aspect_headers
+
+            if len(short_descriptions) > 0:
+                treated_item["short_descriptions"] = short_descriptions
+
+            if len(rich_text_content) > 0:
+                treated_item["content"] = rich_text_content
+            
+            get_text_embeddings(
+                redis_client,
+                openai_client,
+                text_property_names=["title", "description", "aspect_headers", "short_descriptions", "content"],
+                vector_property_names=["title_vector", "description_vector", "aspect_headers_vector", "short_descriptions_vector", "content_vector"],
+                item=treated_item,
+                deployment_name=AZURE_OPENAI_DEPLOYMENT_LARGE_NAME)
+
+            treated_item["keywords"] = get_keywords(kw_model, treated_item)
+            treated_item["medicine_name_keywords"] = get_medicine_name_keywords(text_analytics_client, treated_item)
+
+            batched_treated_items.append(treated_item)
+
+            if len(batched_treated_items) >= batch_size:
+
+                print(f"Uploading batch of {len(batched_treated_items)} items ...")
+
+                search_client.upload_documents(batched_treated_items)
+
+                batched_treated_items.clear()
+
+        if len(batched_treated_items) > 0:
+
+            print(f"Uploading final batch of {len(batched_treated_items)} items ...")
+            search_client.upload_documents(batched_treated_items)
+
+        print(f"Uploaded {len(items)} documents to index '{AZURE_SEARCH_NHS_MSH_INDEX_NAME}'")
+
+
+def create_and_populate_nhs_msh_index():
+    created = create_search_index_nhs_msh()
+    if created:
+        populate_search_index_nhs_msh()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -670,9 +1103,14 @@ if __name__ == "__main__":
         delete_search_index(AZURE_SEARCH_NHS_COMBINED_INDEX_NAME)
     create_and_populate_nhs_combined_data_index()
 
-    # Create NHS conditions index
+    # # Create NHS conditions index
     if args.recreate:
         delete_search_index(AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME)
     create_and_populate_search_index_nhs_conditions()
+
+    # Create NHS MSH index
+    if args.recreate:
+        delete_search_index(AZURE_SEARCH_NHS_MSH_INDEX_NAME)
+    create_and_populate_nhs_msh_index()
  
     print("Completed successfully")

@@ -1,7 +1,200 @@
 [
     {
         "query": "ozempic",
-        "rankings": []
+        "rankings": [
+            {
+                "url": "/nhsuk/medicines/olanzapine/",
+                "score": "0.06213619624613922547",
+                "rank": 1,
+                "id": "nhsuk_medicines_olanzapine",
+                "relevance": 0,
+                "title": "Olanzapine"
+            },
+            {
+                "url": "/nhsuk/conditions/obesity/",
+                "score": "0.06168032786885245901",
+                "rank": 2,
+                "id": "nhsuk_conditions_obesity",
+                "relevance": 2,
+                "title": "Obesity"
+            },
+            {
+                "url": "/nhsuk/medicines/bendroflumethiazide/",
+                "score": "0.05618764966916730034",
+                "rank": 3,
+                "id": "nhsuk_medicines_bendroflumethiazide",
+                "relevance": 0,
+                "title": "Bendroflumethiazide"
+            },
+            {
+                "url": "/nhsuk/medicines/oxybutynin/",
+                "score": "0.05278313717923982250",
+                "rank": 4,
+                "id": "nhsuk_medicines_oxybutynin",
+                "relevance": 0,
+                "title": "Oxybutynin"
+            },
+            {
+                "url": "/nhsuk/pregnancy/related-conditions/existing-health-conditions/diabetes/",
+                "score": "0.04813108038914490528",
+                "rank": 5,
+                "id": "nhsuk_pregnancy_related-conditions_existing-health-conditions_diabetes",
+                "relevance": 0,
+                "title": "Diabetes and pregnancy"
+            },
+            {
+                "url": "/nhsuk/contraception/methods-of-contraception/progestogen-only-pill/side-effects-and-risks/",
+                "score": "0.04737103174603174604",
+                "rank": 6,
+                "id": "nhsuk_contraception_methods-of-contraception_progestogen-only-pill_side-effects-and-risks",
+                "relevance": 0,
+                "title": "Side effects and risks of the progestogen-only pill"
+            },
+            {
+                "url": "/nhsuk/contraception/methods-of-contraception/progestogen-only-pill/where-to-get-it/",
+                "score": "0.04569460390355912745",
+                "rank": 7,
+                "id": "nhsuk_contraception_methods-of-contraception_progestogen-only-pill_where-to-get-it",
+                "relevance": 0,
+                "title": "Where to get the progestogen-only pill"
+            },
+            {
+                "url": "/nhsuk/medicines/fexofenadine/",
+                "score": "0.04458874458874458875",
+                "rank": 8,
+                "id": "nhsuk_medicines_fexofenadine",
+                "relevance": 0,
+                "title": "Fexofenadine"
+            },
+            {
+                "url": "/nhsuk/conditions/stop-smoking-treatments/",
+                "score": "0.04456327985739750446",
+                "rank": 9,
+                "id": "nhsuk_conditions_stop-smoking-treatments",
+                "relevance": 0,
+                "title": "Stop smoking treatments"
+            },
+            {
+                "url": "/nhsuk/contraception/methods-of-contraception/progestogen-only-pill/missed-or-extra-pill/",
+                "score": "0.04355362946912242688",
+                "rank": 10,
+                "id": "nhsuk_contraception_methods-of-contraception_progestogen-only-pill_missed-or-extra-pill",
+                "relevance": 0,
+                "title": "What to do if you miss a progestogen-only pill or take an extra one"
+            },
+            {
+                "url": "/nhsuk/medicines/levothyroxine/",
+                "score": "0.04250897411675798224",
+                "rank": 11,
+                "id": "nhsuk_medicines_levothyroxine",
+                "relevance": 0,
+                "title": "Levothyroxine"
+            },
+            {
+                "url": "/nhsuk/medicines/champix-varenicline/",
+                "score": "0.04214340198321891686",
+                "rank": 12,
+                "id": "nhsuk_medicines_champix-varenicline",
+                "relevance": 0,
+                "title": "Champix (varenicline)"
+            },
+            {
+                "url": "/nhsuk/conditions/diabetic-eye-screening/",
+                "score": "0.04018492176386913228",
+                "rank": 13,
+                "id": "nhsuk_conditions_diabetic-eye-screening",
+                "relevance": 0,
+                "title": "Diabetic eye screening"
+            },
+            {
+                "url": "/nhsuk/medicines/alendronic-acid/",
+                "score": "0.03913630229419703103",
+                "rank": 14,
+                "id": "nhsuk_medicines_alendronic-acid",
+                "relevance": 0,
+                "title": "Alendronic acid"
+            },
+            {
+                "url": "/nhsuk/conditions/lipoedema/",
+                "score": "0.03901508583318883301",
+                "rank": 15,
+                "id": "nhsuk_conditions_lipoedema",
+                "relevance": 0,
+                "title": "Lipoedema"
+            },
+            {
+                "url": "/nhsuk/medicines/diclofenac/",
+                "score": "0.02857142857142857142",
+                "rank": 16,
+                "id": "nhsuk_medicines_diclofenac",
+                "relevance": 0,
+                "title": "Diclofenac"
+            },
+            {
+                "url": "/nhsuk/contraception/methods-of-contraception/progestogen-only-pill/who-can-take-it/",
+                "score": "0.02777777777777777778",
+                "rank": 17,
+                "id": "nhsuk_contraception_methods-of-contraception_progestogen-only-pill_who-can-take-it",
+                "relevance": 0,
+                "title": "Who can take the progestogen-only pill"
+            },
+            {
+                "url": "/nhsuk/medicines/solifenacin/",
+                "score": "0.02736411020104244229",
+                "rank": 18,
+                "id": "nhsuk_medicines_solifenacin",
+                "relevance": 0,
+                "title": "Solifenacin"
+            },
+            {
+                "url": "/nhsuk/medicines/bimatoprost/",
+                "score": "0.02702702702702702702",
+                "rank": 19,
+                "id": "nhsuk_medicines_bimatoprost",
+                "relevance": 0,
+                "title": "Bimatoprost"
+            },
+            {
+                "url": "/nhsuk/medicines/mesalazine/",
+                "score": "0.02666666666666666666",
+                "rank": 20,
+                "id": "nhsuk_medicines_mesalazine",
+                "relevance": 0,
+                "title": "Mesalazine"
+            },
+            {
+                "url": "/nhsuk/medicines/carbimazole/",
+                "score": "0.02597402597402597402",
+                "rank": 21,
+                "id": "nhsuk_medicines_carbimazole",
+                "relevance": 0,
+                "title": "Carbimazole"
+            },
+            {
+                "url": "/nhsuk/conditions/diabetic-ketoacidosis/",
+                "score": "0.02564102564102564102",
+                "rank": 22,
+                "id": "nhsuk_conditions_diabetic-ketoacidosis",
+                "relevance": 1,
+                "title": "Diabetic ketoacidosis"
+            },
+            {
+                "url": "/nhsuk/conditions/type-2-diabetes/",
+                "score": "0.0",
+                "rank": 23,
+                "id": "nhsuk_conditions_type-2-diabetes",
+                "relevance": 1,
+                "title": "Type 2 Diabetes"
+            },
+            {
+                "url": "/nhsuk/conditions/diabetes/",
+                "score": "0.0",
+                "rank": 24,
+                "id": "nhsuk_conditions_diabetes",
+                "relevance": 1,
+                "title": "Diabetes"
+            }
+        ]
     },
     {
         "query": "paronychia",
@@ -27,7 +220,7 @@
                 "score": "0.06254728877679697353",
                 "rank": 1,
                 "id": "nhsuk_conditions_gastritis",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Gastritis"
             },
             {
@@ -35,7 +228,7 @@
                 "score": "0.06038851351351351351",
                 "rank": 2,
                 "id": "nhsuk_conditions_chronic-pancreatitis",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Chronic pancreatitis"
             },
             {
@@ -59,7 +252,7 @@
                 "score": "0.05557186344857577734",
                 "rank": 5,
                 "id": "nhsuk_conditions_stomach-ache",
-                "relevance": 1,
+                "relevance": 2,
                 "title": "Stomach ache"
             },
             {
@@ -67,7 +260,7 @@
                 "score": "0.05522788729082572402",
                 "rank": 6,
                 "id": "nhsuk_conditions_crohns-disease",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Crohn's disease"
             },
             {
@@ -75,7 +268,7 @@
                 "score": "0.05481884057971014493",
                 "rank": 7,
                 "id": "nhsuk_conditions_inflammatory-bowel-disease",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Inflammatory bowel disease"
             },
             {
@@ -83,7 +276,7 @@
                 "score": "0.04838709677419354839",
                 "rank": 8,
                 "id": "nhsuk_conditions_ulcerative-colitis",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Ulcerative colitis"
             },
             {
@@ -99,7 +292,7 @@
                 "score": "0.04545454545454545456",
                 "rank": 10,
                 "id": "nhsuk_conditions_stomach-ulcer",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Stomach ulcer"
             },
             {
@@ -123,7 +316,7 @@
                 "score": "0.04132690882134914752",
                 "rank": 13,
                 "id": "nhsuk_conditions_irritable-bowel-syndrome-ibs",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Irritable bowel syndrome (IBS)"
             },
             {
@@ -139,7 +332,7 @@
                 "score": "0.04001404001404001403",
                 "rank": 15,
                 "id": "nhsuk_conditions_listeriosis",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Listeriosis"
             },
             {
@@ -155,7 +348,7 @@
                 "score": "0.03041474654377880184",
                 "rank": 17,
                 "id": "nhsuk_conditions_giardiasis",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Giardiasis"
             },
             {
@@ -171,7 +364,7 @@
                 "score": "0.02739726027397260274",
                 "rank": 19,
                 "id": "nhsuk_conditions_cyclical-vomiting-syndrome",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Cyclical vomiting syndrome"
             },
             {
@@ -179,7 +372,7 @@
                 "score": "0.02666666666666666666",
                 "rank": 20,
                 "id": "nhsuk_conditions_diverticular-disease-and-diverticulitis",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Diverticular disease and diverticulitis"
             },
             {
