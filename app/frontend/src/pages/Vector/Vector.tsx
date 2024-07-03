@@ -42,8 +42,9 @@ const Vector: React.FC = () => {
 
     const Datasets: IDropdownOption[] = useMemo(
         () => [
-            { key: "conditions", text: "NHSUK Conditions", title: "Short conditions articles" },
-            { key: "combined", text: "NHSUK Combined Conditions & Medicines", title: "Conditions & Medicines documents" }
+            { key: "conditions", text: "NHSUK Lite", title: "Lightweight index" },
+            { key: "combined", text: "NHSUK Full", title: "Full content & vector embeddings" },
+            { key: "msh", text: "NHSUK Full + MSH ", title: "Full including MSH Medical Name Keywords" }
         ],
         []
     );
@@ -53,6 +54,8 @@ const Vector: React.FC = () => {
         sampleQueries = ["acupuncture", "alendronic acid", "side effects"];
     } else if (selectedDatasetKey === "conditions") {
         sampleQueries = ["heart attack", "cancer", "ADHD"];
+    } else if (selectedDatasetKey === "msh") {
+        sampleQueries = ["Tobracin", "Retinol", "Hydroxyampicillin"];
     }
 
     const executeSearch = useCallback(
@@ -153,7 +156,7 @@ const Vector: React.FC = () => {
         setResultCards([]);
 
         const dataSet = String(item?.key) ?? "conditions";
-        const selectedApproach = dataSet === "conditions" ? "text" : "text_2";
+        const selectedApproach = dataSet === "conditions" ? "text" : dataSet === "combined" ? "text_2" : "msh_text";
 
         setSelectedDatasetKey(dataSet);
         setSelectedApproachKeys([selectedApproach]);

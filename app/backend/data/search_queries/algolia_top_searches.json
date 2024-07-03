@@ -64,7 +64,7 @@
                 "score": "0.04689826302729528537",
                 "rank": 7,
                 "id": "nhsuk_medicines_methylphenidate-children",
-                "relevance": 1,
+                "relevance": 2,
                 "title": "Methylphenidate for children"
             },
             {
@@ -72,7 +72,7 @@
                 "score": "0.04667140488036010425",
                 "rank": 8,
                 "id": "nhsuk_conditions_learning-disabilities",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Learning disabilities"
             },
             {
@@ -80,7 +80,7 @@
                 "score": "0.04592803030303030304",
                 "rank": 9,
                 "id": "nhsuk_medicines_methylphenidate-adults",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Methylphenidate for adults"
             },
             {
@@ -96,7 +96,7 @@
                 "score": "0.04283775925566970343",
                 "rank": 11,
                 "id": "nhsuk_conditions_baby_babys-development_behaviour_dealing-with-child-behaviour-problems",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Dealing with child behaviour problems"
             },
             {
@@ -104,7 +104,7 @@
                 "score": "0.04278187565858798736",
                 "rank": 12,
                 "id": "nhsuk_mental-health_children-and-young-adults_advice-for-parents_anxiety-disorders-in-children",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Anxiety disorders in children"
             },
             {
@@ -128,7 +128,7 @@
                 "score": "0.04159203980099502487",
                 "rank": 15,
                 "id": "nhsuk_conditions_tourettes-syndrome",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Tourette's syndrome"
             },
             {
