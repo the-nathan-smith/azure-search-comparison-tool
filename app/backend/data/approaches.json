@@ -207,5 +207,49 @@
         "semantic_configuration_name": "semantic-config-keywords",
         "scoring_profile_name": "title_weighted",
         "open_ai_deployment_name": "embedding-large"
+    },
+    {
+        "key": "text_medbert",
+        "title": "Text Only (BM25)",
+        "description": "Uses the Best Match 25 full text search algorithm with default `k1` and `b` parameters. `k1` controls the scaling function between the term frequency of each matching terms and the final relevance score of a document-query pair (0 - 3). By default, a value of 1.2 is used. `b` controls how the length of a document affects the relevance score (0 - 1). By default, a value of 0.75 is used. Index uses a full set of data from the data source",
+        "use_vector_search": false,
+        "data_set": "medbert",
+        "output_field_names": [
+            "id",
+            "title",
+            "description"
+        ]
+    },
+    {
+        "key": "exhaustive_vec_large_medbert",
+        "title": "Vectors Only (large - Knn)",
+        "description": "",
+        "use_vector_search": true,
+        "data_set": "medbert",
+        "output_field_names": [
+            "id",
+            "title",
+            "description"
+        ],
+        "vector_field_names": "title_vector,description_vector,aspect_headers_vector,short_descriptions_vector,content_vector",
+        "use_hybrid_search": false,
+        "use_semantic_ranker": false,
+        "open_ai_deployment_name": "embedding-large"
+    },
+    {
+        "key": "hs_large_medbert",
+        "title": "Text & Vectors (large - Knn)",
+        "description": "",
+        "use_vector_search": true,
+        "data_set": "medbert",
+        "output_field_names": [
+            "id",
+            "title",
+            "description"
+        ],
+        "vector_field_names": "title_vector,description_vector,aspect_headers_vector,short_descriptions_vector,content_vector",
+        "use_hybrid_search": true,
+        "use_semantic_ranker": false,
+        "open_ai_deployment_name": "embedding-large"
     }
 ]
