@@ -15,7 +15,7 @@
                 "score": "0.50187312243738074940",
                 "rank": 2,
                 "id": "nhsuk_conditions_bladder-cancer",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Bladder cancer"
             },
             {
@@ -23,7 +23,7 @@
                 "score": "0.49865010611279268009",
                 "rank": 3,
                 "id": "nhsuk_conditions_non-hodgkin-lymphoma",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Non-Hodgkin lymphoma"
             },
             {
@@ -31,7 +31,7 @@
                 "score": "0.49705206996690754380",
                 "rank": 4,
                 "id": "nhsuk_conditions_lung-cancer",
-                "relevance": 1,
+                "relevance": 2,
                 "title": "Lung cancer"
             },
             {
@@ -39,7 +39,7 @@
                 "score": "0.48298841098589161342",
                 "rank": 5,
                 "id": "nhsuk_conditions_head-and-neck-cancer",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Head and neck cancer"
             },
             {
@@ -47,7 +47,7 @@
                 "score": "0.30402121078214759171",
                 "rank": 6,
                 "id": "nhsuk_conditions_malignant-brain-tumour",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Malignant brain tumour (brain cancer)"
             },
             {
@@ -55,7 +55,7 @@
                 "score": "0.28499278499278499286",
                 "rank": 7,
                 "id": "nhsuk_conditions_predictive-genetic-tests-cancer",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Predictive genetic tests for cancer risk genes"
             },
             {
@@ -63,7 +63,7 @@
                 "score": "0.27651257609596196107",
                 "rank": 8,
                 "id": "nhsuk_conditions_hodgkin-lymphoma",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Hodgkin lymphoma"
             },
             {
@@ -71,7 +71,7 @@
                 "score": "0.27302275189599133269",
                 "rank": 9,
                 "id": "nhsuk_conditions_chemotherapy",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Chemotherapy"
             },
             {
@@ -79,7 +79,7 @@
                 "score": "0.27195301845306020203",
                 "rank": 10,
                 "id": "nhsuk_conditions_vulval-cancer",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Vulval cancer"
             },
             {
@@ -87,7 +87,7 @@
                 "score": "0.26511025343445521039",
                 "rank": 11,
                 "id": "nhsuk_conditions_phaeochromocytoma",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Phaeochromocytoma"
             },
             {
@@ -103,7 +103,7 @@
                 "score": "0.23511904761904761906",
                 "rank": 13,
                 "id": "nhsuk_conditions_nasal-and-sinus-cancer",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Nasal and sinus cancer"
             },
             {
@@ -111,7 +111,7 @@
                 "score": "0.23189014736329314338",
                 "rank": 14,
                 "id": "nhsuk_conditions_bone-cancer",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Bone cancer"
             },
             {
@@ -119,7 +119,7 @@
                 "score": "0.22710622710622710616",
                 "rank": 15,
                 "id": "nhsuk_conditions_brain-tumours",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Brain tumours"
             },
             {
@@ -127,7 +127,7 @@
                 "score": "0.05424410712081944958",
                 "rank": 16,
                 "id": "nhsuk_conditions_womb-cancer",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Womb (uterus) cancer"
             },
             {
@@ -135,7 +135,7 @@
                 "score": "0.05286036036036036035",
                 "rank": 17,
                 "id": "nhsuk_conditions_laryngeal-cancer",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Laryngeal (larynx) cancer"
             },
             {
@@ -143,7 +143,7 @@
                 "score": "0.04479578392621870884",
                 "rank": 18,
                 "id": "nhsuk_nhs-services_hospitals_guide-to-nhs-waiting-times-in-england",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Guide to NHS waiting times in England"
             },
             {
@@ -151,7 +151,7 @@
                 "score": "0.04147640791476407915",
                 "rank": 19,
                 "id": "nhsuk_conditions_chronic-lymphocytic-leukaemia",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Chronic lymphocytic leukaemia"
             },
             {
@@ -159,7 +159,7 @@
                 "score": "0.03982456140350877192",
                 "rank": 20,
                 "id": "nhsuk_conditions_cervical-cancer",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Cervical cancer"
             },
             {
@@ -167,7 +167,7 @@
                 "score": "0.03952991452991452991",
                 "rank": 21,
                 "id": "nhsuk_conditions_acute-myeloid-leukaemia",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Acute myeloid leukaemia"
             },
             {
@@ -175,7 +175,7 @@
                 "score": "0.03847435043304463690",
                 "rank": 22,
                 "id": "nhsuk_conditions_vaginal-cancer",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Vaginal cancer"
             },
             {
@@ -183,7 +183,7 @@
                 "score": "0.02597402597402597402",
                 "rank": 23,
                 "id": "nhsuk_conditions_persistent-trophoblastic-disease-choriocarcinoma",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Persistent trophoblastic disease and choriocarcinoma"
             }
         ]
@@ -220,7 +220,7 @@
                 "score": "0.06253054740957966765",
                 "rank": 3,
                 "id": "nhsuk_conditions_pulmonary-embolism",
-                "relevance": 1,
+                "relevance": 2,
                 "title": "Pulmonary embolism"
             },
             {
@@ -228,7 +228,7 @@
                 "score": "0.06164459390265841879",
                 "rank": 4,
                 "id": "nhsuk_conditions_thrombophilia",
-                "relevance": 1,
+                "relevance": 2,
                 "title": "Thrombophilia"
             },
             {
@@ -236,7 +236,7 @@
                 "score": "0.06139101665048369117",
                 "rank": 5,
                 "id": "nhsuk_conditions_anticoagulants",
-                "relevance": 1,
+                "relevance": 2,
                 "title": "Anticoagulant medicines"
             },
             {
@@ -244,7 +244,7 @@
                 "score": "0.05884554042448779292",
                 "rank": 6,
                 "id": "nhsuk_conditions_antiphospholipid-syndrome",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Antiphospholipid syndrome (APS)"
             },
             {
@@ -260,7 +260,7 @@
                 "score": "0.05697594106135604926",
                 "rank": 8,
                 "id": "nhsuk_conditions_cavernous-sinus-thrombosis",
-                "relevance": 0,
+                "relevance": 2,
                 "title": "Cavernous sinus thrombosis"
             },
             {
@@ -268,7 +268,7 @@
                 "score": "0.05642772055216873380",
                 "rank": 9,
                 "id": "nhsuk_conditions_heart-attack",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Heart attack"
             },
             {
@@ -276,7 +276,7 @@
                 "score": "0.05540293040293040293",
                 "rank": 10,
                 "id": "nhsuk_conditions_phlebitis",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Phlebitis (superficial thrombophlebitis)"
             },
             {
@@ -284,7 +284,7 @@
                 "score": "0.05375534234404440336",
                 "rank": 11,
                 "id": "nhsuk_pregnancy_related-conditions_complications_deep-vein-thrombosis",
-                "relevance": 1,
+                "relevance": 2,
                 "title": "Deep vein thrombosis in pregnancy"
             },
             {
@@ -292,7 +292,7 @@
                 "score": "0.04239877769289533995",
                 "rank": 12,
                 "id": "nhsuk_conditions_carotid-endarterectomy",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Carotid endarterectomy"
             },
             {
@@ -308,7 +308,7 @@
                 "score": "0.04180602006688963211",
                 "rank": 14,
                 "id": "nhsuk_contraception_methods-of-contraception_female-sterilisation_complications",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Complications of female sterilisation"
             },
             {
@@ -316,7 +316,7 @@
                 "score": "0.04109589041095890411",
                 "rank": 15,
                 "id": "nhsuk_conditions_leg-ulcer",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Venous leg ulcer"
             },
             {
@@ -356,7 +356,7 @@
                 "score": "0.02548701298701298701",
                 "rank": 20,
                 "id": "nhsuk_conditions_cardiovascular-disease",
-                "relevance": 0,
+                "relevance": 1,
                 "title": "Cardiovascular disease"
             }
         ]
@@ -367,6 +367,10 @@
             {
                 "id": "nhsuk_conditions_deep-vein-thrombosis-dvt",
                 "relevance": 3
+            },
+            {
+                "id": "nhsuk_conditions_blood-clots",
+                "relevance": 2
             }
         ]
     },
