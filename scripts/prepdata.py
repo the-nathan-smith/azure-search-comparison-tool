@@ -136,7 +136,7 @@ def create_search_index_nhs_conditions():
         )
         print(f"Creating {AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME} search index")
         index_client.create_index(index)
-        create_and_get_synonym_map(index_client)
+        create_synonym_map(index_client)
         return True
     else:
         print(f"Search index {AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME} already exists")
@@ -325,7 +325,6 @@ def get_text_embeddings(
         redis_client.set(item_key, json.dumps(redis_obj))
 
 def get_text_embeddings_medbert(
-        # redis_client,
         text_property_names: list,
         vector_property_names: list,
         item,
@@ -336,18 +335,7 @@ def get_text_embeddings_medbert(
     if (len(text_property_names) != len(vector_property_names)):
         raise Exception("The number of text property names must equal the number of vector property names") 
 
-    # if redis_client.exists(item_key):
-    #     print(f"Document with id {item["id"]} already exists in Redis cache, retrieving vectors.")
-
-    #     cached_item = json.loads(redis_client.get(item_key))
-
-    #     for vector_property_name in vector_property_names:
-    #         if vector_property_name in cached_item:
-    #             item[vector_property_name] = cached_item[vector_property_name]
-    # else:
     print(f"Generating MedBert embeddings for {item["id"]} ...")
-
-    # redis_obj = {}
 
     for idx, text_property_name in enumerate(text_property_names):
 
@@ -865,7 +853,7 @@ def generate_medbert_vector_embeddings(text, tokenizer, vector_model):
 
     avg_content = torch.mean(avg_sentence,dim=0)
 
-    return avg_content.detach().numpy()
+    return avg_content.detach().tolist()
 
 def create_search_index_nhs_medbert_data() -> bool:
     print(type(AZURE_SEARCH_SERVICE_ENDPOINT))
@@ -1025,16 +1013,8 @@ def populate_search_index_nhs_medbert_data():
     search_client = SearchClient(
         endpoint=AZURE_SEARCH_SERVICE_ENDPOINT,
         credential=azure_credential,
-        index_name=AZURE_SEARCH_NHS_COMBINED_INDEX_NAME,
+        index_name=AZURE_SEARCH_NHS_MEDBERT_INDEX_NAME,
     )
-
-    # redis_client = redis.StrictRedis(
-    #     host=REDIS_HOST,
-    #     port=REDIS_PORT,
-    #     password=REDIS_PASSWORD,
-    #     ssl=True,
-    #     decode_responses=True
-    # )
 
     model_name = "Charangan/MedBERT"
     model = AutoModel.from_pretrained(model_name)
@@ -1054,6 +1034,17 @@ def populate_search_index_nhs_medbert_data():
     vector_model = BertModel.from_pretrained(model_name, output_hidden_states = True)
     vector_model.eval()
 
+    processed_item_ids = []
+
+    try:
+        with open("medbert_item_ids.json", encoding="utf-8") as f:
+            processed_item_ids = [line.rstrip() for line in f]
+
+        print(processed_item_ids)
+
+    except:
+        print("processed item ids file not found")
+
     for file_name in ["data/conditions_1.json", "data/medicines_1.json", "data/articles_1.json"]:
 
         with open(file_name, "r", encoding="utf-8") as file:
@@ -1064,9 +1055,25 @@ def populate_search_index_nhs_medbert_data():
         batched_treated_items = []
         batch_size = 12
 
-        for item in items[:5]:
+        for item in items:
 
-            item_id = item["url_path"].strip('/').replace("/", "_")
+            item_id = item["url_path"].strip('/').replace("/", "_").replace("â","a").replace("ŷ","y")
+
+            if item_id in processed_item_ids:
+                print(f"{item_id} already exists. Skipping...")
+                continue
+
+            try:
+                existing_doc = search_client.get_document(item_id, ["id"])
+
+                print(f"{existing_doc["id"]} already exists. Skipping...")
+
+                with open("medbert_item_ids.json", 'a') as f: 
+                    f.write(item_id + '\n') 
+
+                continue
+            except ResourceNotFoundError:
+                print(f"Adding entry for {item_id}")
 
             treated_item = {
                 "id": item_id,
@@ -1107,8 +1114,6 @@ def populate_search_index_nhs_medbert_data():
                         else:
                             all_content += " " + content
 
-            # print(f"{treated_item["id"]} has {len(aspect_headers)} aspect headers and {len(short_descriptions)} short descriptions")
-
             if len(aspect_headers) > 0:
                 treated_item["aspect_headers"] = aspect_headers
 
@@ -1121,7 +1126,6 @@ def populate_search_index_nhs_medbert_data():
             treated_item["keywords"] = get_keywords(kw_model, treated_item)
 
             get_text_embeddings_medbert(
-                # redis_client = redis_client,
                 text_property_names=["title", "description", "aspect_headers", "short_descriptions", "content"],
                 vector_property_names=["title_vector", "description_vector", "aspect_headers_vector", "short_descriptions_vector", "content_vector"],
                 item=treated_item,
@@ -1132,8 +1136,6 @@ def populate_search_index_nhs_medbert_data():
             batched_treated_items.append(treated_item)
 
             print(f"Successfully generated embedding for: {treated_item['title']}")
-
-            print(f"Batched treated items: {len(batched_treated_items)}\n")
 
             if len(batched_treated_items) >= batch_size:
 
@@ -1478,9 +1480,9 @@ if __name__ == "__main__":
         delete_search_index(AZURE_SEARCH_NHS_MEDBERT_INDEX_NAME)
     create_and_populate_nhs_medbert_data_index()
 
-    # Create NHS MSH index
-    if args.recreate:
-        delete_search_index(AZURE_SEARCH_NHS_MSH_INDEX_NAME)
-    create_and_populate_nhs_msh_index()
+    # # Create NHS MSH index
+    # if args.recreate:
+    #     delete_search_index(AZURE_SEARCH_NHS_MSH_INDEX_NAME)
+    # create_and_populate_nhs_msh_index()
  
     print("Completed successfully")

@@ -44,7 +44,8 @@ const Vector: React.FC = () => {
         () => [
             { key: "conditions", text: "NHSUK Lite", title: "Lightweight index" },
             { key: "combined", text: "NHSUK Full", title: "Full content & vector embeddings" },
-            { key: "msh", text: "NHSUK Full + MSH ", title: "Full including MSH Medical Name Keywords" }
+            { key: "msh", text: "NHSUK Full + MSH", title: "Full including MSH Medical Name Keywords" },
+            { key: "medbert", text: "NHSUK Medbert", title: "Full using medBERT vectors" }
         ],
         []
     );
@@ -56,6 +57,8 @@ const Vector: React.FC = () => {
         sampleQueries = ["heart attack", "cancer", "ADHD"];
     } else if (selectedDatasetKey === "msh") {
         sampleQueries = ["Tobracin", "Retinol", "Hydroxyampicillin"];
+    } else if (selectedDatasetKey === "medbert") {
+        sampleQueries = ["nutrition", "baby", "covid"];
     }
 
     const executeSearch = useCallback(
@@ -156,7 +159,8 @@ const Vector: React.FC = () => {
         setResultCards([]);
 
         const dataSet = String(item?.key) ?? "conditions";
-        const selectedApproach = dataSet === "conditions" ? "text" : dataSet === "combined" ? "text_2" : "msh_text";
+        const selectedApproach =
+            dataSet === "conditions" ? "text" : dataSet === "combined" ? "text_2" : dataSet === "msh" ? "msh_text" : "exhaustive_vec_large_medbert";
 
         setSelectedDatasetKey(dataSet);
         setSelectedApproachKeys([selectedApproach]);
