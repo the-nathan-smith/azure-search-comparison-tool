@@ -1,7 +1,7 @@
 import logging
 from typing import Any
 from azure.search.documents.aio import SearchClient
-from azure.search.documents.models import QueryType, QueryCaptionType, QueryAnswerType, VectorizedQuery, SearchMode
+from azure.search.documents.models import QueryType, QueryCaptionType, QueryAnswerType, VectorizedQuery, SearchMode, QuerySpellerType, QueryLanguage
 from ranking import Ranking
 from results import Results
 from approaches import Approaches
@@ -53,6 +53,9 @@ class SearchText:
 
         search_mode = SearchMode.ALL
 
+        query_speller = QuerySpellerType.LEXICON
+        query_language = QueryLanguage.EN_GB
+
         semantic_configuration = approach_config["semantic_configuration_name"] if use_semantic_ranker else None
 
         scoring_profile_name = approach_config["scoring_profile_name"] if "scoring_profile_name" in approach_config else None
@@ -81,6 +84,8 @@ class SearchText:
             scoring_profile=scoring_profile_name,
             query_caption=query_caption,
             query_answer=query_answer,
+            # query_language=query_language,
+            query_speller=query_speller,
             highlight_pre_tag=highlight_pre_tag,
             highlight_post_tag=highlight_post_tag
         )

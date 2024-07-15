@@ -1,5 +1,5 @@
 azure-identity==1.16.0
-azure-search-documents==11.4.0
+azure-search-documents==11.6.0b4
 quart==0.19.6
 openai[datalib]==1.30.5
 uvicorn[standard]==0.30.1
@@ -10,3 +10,5 @@ postgres==4.0
 beautifulsoup4==4.12.3
 requests==2.32.3
 redis==5.0.4
+transformers==4.41.2
+torch==2.3.1

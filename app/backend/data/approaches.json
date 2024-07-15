@@ -157,8 +157,16 @@
     "open_ai_deployment_name": "embedding-large"
   },
   {
+    "key": "text_medbert",
+    "title": "Text Only (BM25)",
+    "description": "Plain text search - should be the same as the full index search",
+    "use_vector_search": false,
+    "data_set": "medbert",
+    "output_field_names": ["id", "title", "description"]
+  },
+  {
     "key": "exhaustive_vec_large_medbert",
-    "title": "Vectors Only (large - Knn)",
+    "title": "Vectors Only (medBERT - Knn)",
     "description": "Vector search using embeddings created using medBERT as opposed to OpenAI",
     "use_vector_search": true,
     "data_set": "medbert",
@@ -169,7 +177,7 @@
   },
   {
     "key": "hs_large_medbert",
-    "title": "Text & Vectors (large - Knn)",
+    "title": "Text & Vectors (medBERT - Knn)",
     "description": "",
     "use_vector_search": true,
     "data_set": "medbert",
@@ -188,5 +196,35 @@
     "use_hybrid_search": false,
     "use_semantic_ranker": false,
     "scoring_profile_name": "title_weighted"
+  },
+  {
+    "key": "text_bert_base",
+    "title": "Text Only (BM25)",
+    "description": "Plain text search - should be the same as the lite index search",
+    "use_vector_search": false,
+    "data_set": "bert",
+    "output_field_names": ["id", "title", "description"]
+  },
+  {
+    "key": "exhaustive_vec_bert_base",
+    "title": "Vectors Only (BERT - Knn)",
+    "description": "Vector search using embeddings created using medBERT as opposed to OpenAI",
+    "use_vector_search": true,
+    "data_set": "bert",
+    "output_field_names": ["id", "title", "description"],
+    "vector_field_names": "title_vector,description_vector",
+    "use_hybrid_search": false,
+    "use_semantic_ranker": false
+  },
+  {
+    "key": "hs_bert_base",
+    "title": "Text & Vectors (BERT - Knn)",
+    "description": "",
+    "use_vector_search": true,
+    "data_set": "bert",
+    "output_field_names": ["id", "title", "description"],
+    "vector_field_names": "title_vector,description_vector",
+    "use_hybrid_search": true,
+    "use_semantic_ranker": false
   }
 ]

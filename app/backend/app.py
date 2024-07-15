@@ -18,6 +18,9 @@ from approaches import Approaches
 from searchText import SearchText
 from nhsSearch import AlgoliaSiteSearch
 
+import torch
+from transformers import AutoModel, BertTokenizer, BertModel
+
 # config keys
 CONFIG_OPENAI_SERVICE = "openai_service"
 CONFIG_OPENAI_CLIENT = "openai_client"
@@ -26,6 +29,7 @@ CONFIG_CREDENTIAL = "azure_credential"
 CONFIG_SEARCH_CONDITIONS_INDEX = "search_conditions"
 CONFIG_SEARCH_COMBINED_INDEX = "search_combined"
 CONFIG_SEARCH_MEDBERT_INDEX = "search_medbert"
+CONFIG_SEARCH_BERT_INDEX = "search_bert"
 CONFIG_SEARCH_MSH_INDEX = "search_msh"
 CONFIG_ALGOLIA_SEARCH = "algolia_search"
 CONFIG_REDIS_CLIENT = "redis_client"
@@ -33,6 +37,7 @@ CONFIG_REDIS_CLIENT = "redis_client"
 dataSetConfigDict = {
      "conditions": CONFIG_SEARCH_CONDITIONS_INDEX,
      "combined": CONFIG_SEARCH_COMBINED_INDEX,
+     "bert": CONFIG_SEARCH_BERT_INDEX,
      "medbert": CONFIG_SEARCH_MEDBERT_INDEX,
      "msh": CONFIG_SEARCH_MSH_INDEX
 }
@@ -58,32 +63,105 @@ async def embed_query():
 
         a = Approaches("./data/approaches.json").get(approach)
 
-        deployment_name = a["open_ai_deployment_name"]
+        if a["data_set"] == "medbert":
 
-        redis_client = current_app.config[CONFIG_REDIS_CLIENT]
+            print(f"getting medbert vector for {query}")
 
-        query_hash = int(hashlib.sha256(query.encode('utf-8')).hexdigest(), 16) % 10**8
+            model_name = "Charangan/MedBERT"
+            tokenizer = BertTokenizer.from_pretrained(model_name)
 
-        key = f"search_{query_hash}_{deployment_name}"
+            encoded_input = tokenizer(query, padding=True, return_tensors="pt")
 
-        if redis_client.exists(key):
-            
-            cache_item = json.loads(redis_client.get(key))
+            model = BertModel.from_pretrained(model_name, output_hidden_states = True)
 
-            print(f"matched {key} for query {query}")
+            model.eval()
 
-            return cache_item["embedding"], 200
+            with torch.no_grad():
+                outputs = model(**encoded_input)
+                hidden_states = outputs.last_hidden_state
 
-        openai_client = current_app.config[CONFIG_OPENAI_CLIENT]
+            # Using the [CLS] token embeddings for each input in the batch
+            cls_embeddings = hidden_states[:, 0, :]  # Extract the [CLS] token representations
+            print("CLS Embeddings Shape:", cls_embeddings.shape)  # Shape: (batch_size, hidden_size)
 
-        response = openai_client.embeddings.create(
-            input = query,
-            model = deployment_name
-        )
+            # Mean pooling: Compute the mean of all [CLS] embeddings
+            mean_pooled_embedding = torch.mean(cls_embeddings, dim=0)
+            print("Mean Pooled Embedding Shape:", mean_pooled_embedding.shape)  # Shape: (hidden_size,)
 
-        redis_client.set(key, json.dumps({"query": query, "deployment": deployment_name, "embedding": response.data[0].embedding }))
+            # Max pooling
+            max_pooled_embedding = torch.max(cls_embeddings, dim=0).values
+            print("Max Pooled Embedding Shape:", max_pooled_embedding.shape)  # Shape: (hidden_size,)
 
-        return response.data[0].embedding, 200
+            # Min pooling
+            min_pooled_embedding = torch.min(cls_embeddings, dim=0).values
+            print("Min Pooled Embedding Shape:", min_pooled_embedding.shape)  # Shape: (hidden_size,)
+
+            # Concatenate mean, max, and min pooled embeddings
+            concatenated_embedding = torch.cat((mean_pooled_embedding, max_pooled_embedding, min_pooled_embedding), dim=0)
+            print("Concatenated Embedding Shape:", concatenated_embedding.shape)  # Shape: (3 * hidden_size,)
+
+            return concatenated_embedding.tolist(), 200
+
+            # outputs = model(**encoded_input)
+
+            # hidden_states = torch.stack(outputs[2])
+
+            # cat_vec = torch.cat((hidden_states[-1], hidden_states[-2], hidden_states[-3], hidden_states[-4]), dim=2)
+
+            # avg_sentence = torch.mean(cat_vec, dim=0)
+
+            # avg_content = torch.mean(avg_sentence,dim=0)
+
+            # return avg_content.detach().tolist(), 200
+        elif a["data_set"] == "bert":
+
+            model_name = "bert-base-uncased"
+            print(f"Calculating vector for {query} using {model_name}")
+
+            tokenizer = BertTokenizer.from_pretrained(model_name)
+
+            encoded_input = tokenizer(query, truncation=True, max_length=512, return_tensors="pt")
+
+            model = BertModel.from_pretrained(model_name, output_hidden_states = True)
+
+            with torch.no_grad():
+                outputs = model(**encoded_input)
+                hidden_states = outputs.last_hidden_state
+
+            # Using the [CLS] token embeddings for each input in the batch
+            cls_embeddings = hidden_states[:, 0, :]  # Extract the [CLS] token representations
+            print("CLS Embeddings Shape:", cls_embeddings.shape)  # Shape: (batch_size, hidden_size)
+
+            return cls_embeddings.squeeze().tolist(), 200
+
+        else:
+            deployment_name = a["open_ai_deployment_name"]
+
+            redis_client = current_app.config[CONFIG_REDIS_CLIENT]
+
+            query_hash = int(hashlib.sha256(query.encode('utf-8')).hexdigest(), 16) % 10**8
+
+            key = f"search_{query_hash}_{deployment_name}"
+
+            if redis_client.exists(key):
+                
+                cache_item = json.loads(redis_client.get(key))
+
+                print(f"matched {key} for query {query}")
+
+                return cache_item["embedding"], 200
+
+            openai_client = current_app.config[CONFIG_OPENAI_CLIENT]
+
+            response = openai_client.embeddings.create(
+                input = query,
+                model = deployment_name
+            )
+
+            redis_client.set(key, json.dumps({"query": query, "deployment": deployment_name, "embedding": response.data[0].embedding }))
+
+            return response.data[0].embedding, 200
+        
     except Exception as e:
         logging.exception("Exception in /embedQuery")
         return jsonify({"error": str(e)}), 500
@@ -175,6 +253,7 @@ async def setup_clients():
     AZURE_SEARCH_COMBINED_INDEX_NAME = os.getenv("AZURE_SEARCH_NHS_COMBINED_INDEX_NAME")
     AZURE_SEARCH_MEDBERT_INDEX_NAME = os.getenv("AZURE_SEARCH_NHS_MEDBERT_INDEX_NAME")
     AZURE_SEARCH_MSH_INDEX_NAME = os.getenv("AZURE_SEARCH_NHS_MSH_INDEX_NAME")
+    AZURE_SEARCH_BERT_BASE_INDEX_NAME = os.getenv("AZURE_SEARCH_NHS_BERT_BASE_INDEX_NAME")
 
     POSTGRES_SERVER_NAME = os.getenv("POSTGRES_SERVER")
     POSTGRES_USER = os.getenv("POSTGRES_SERVER_ADMIN_LOGIN")
@@ -219,6 +298,12 @@ async def setup_clients():
         index_name=AZURE_SEARCH_MEDBERT_INDEX_NAME,
         credential=azure_credential,
     )
+
+    search_client_bert = SearchClient(
+        endpoint=AZURE_SEARCH_SERVICE_ENDPOINT,
+        index_name=AZURE_SEARCH_BERT_BASE_INDEX_NAME,
+        credential=azure_credential,
+    )
     
     search_client_msh = SearchClient(
         endpoint=AZURE_SEARCH_SERVICE_ENDPOINT,
@@ -243,6 +328,10 @@ async def setup_clients():
         approaches)
     current_app.config[CONFIG_SEARCH_COMBINED_INDEX] = SearchText(
         search_client_combined,
+        results,
+        approaches)
+    current_app.config[CONFIG_SEARCH_BERT_INDEX] = SearchText(
+        search_client_bert,
         results,
         approaches)
     current_app.config[CONFIG_SEARCH_MEDBERT_INDEX] = SearchText(

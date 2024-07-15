@@ -54,6 +54,7 @@ AZURE_SEARCH_NHS_CONDITIONS_INDEX_NAME = os.environ.get("AZURE_SEARCH_NHS_CONDIT
 AZURE_SEARCH_NHS_COMBINED_INDEX_NAME = os.environ.get("AZURE_SEARCH_NHS_COMBINED_INDEX_NAME")
 AZURE_SEARCH_NHS_MSH_INDEX_NAME = os.environ.get("AZURE_SEARCH_NHS_MSH_INDEX_NAME")
 AZURE_SEARCH_NHS_MEDBERT_INDEX_NAME = os.environ.get("AZURE_SEARCH_NHS_MEDBERT_INDEX_NAME")
+AZURE_SEARCH_NHS_BERT_BASE_INDEX_NAME = os.environ.get("AZURE_SEARCH_NHS_BERT_BASE_INDEX_NAME")
 
 REDIS_HOST = os.environ.get("REDIS_HOST")
 REDIS_PORT = os.environ.get("REDIS_PORT")
@@ -341,7 +342,30 @@ def get_text_embeddings_medbert(
 
         if text_property_name in item:
 
-            embeddings = generate_medbert_vector_embeddings(item[text_property_name], tokenizer, vector_model)
+            embeddings = generate_medbert_vector_embeddings(chunk_text(item[text_property_name], tokenizer), tokenizer, vector_model)
+
+            vector_property_name = vector_property_names[idx]
+
+            item[vector_property_name] = embeddings
+
+def get_text_embeddings_bert(
+        text_property_names: list,
+        vector_property_names: list,
+        item,
+        vector_model,
+        tokenizer
+        ):
+
+    if (len(text_property_names) != len(vector_property_names)):
+        raise Exception("The number of text property names must equal the number of vector property names") 
+
+    print(f"Generating BERT embeddings for {item["id"]} ...")
+
+    for idx, text_property_name in enumerate(text_property_names):
+
+        if text_property_name in item:
+
+            embeddings = generate_bert_vector_embeddings(item[text_property_name], tokenizer, vector_model)
 
             vector_property_name = vector_property_names[idx]
 
@@ -818,15 +842,41 @@ def create_and_populate_nhs_combined_data_index():
     if created:
         populate_search_index_nhs_combined_data()
 
-def generate_medbert_vector_embeddings(text, tokenizer, vector_model):
+def chunk_text(text: str | list[str], tokenizer: BertTokenizer, max_length = 510) -> list[str]:
 
-    truncation_counter = 0
+    chunked_texts = []
+
+    if isinstance(text, list):
+
+        for t in text:
+            tokens = tokenizer.tokenize(t)
+
+            chunks = [tokens[i:i + max_length] for i in range(0, len(tokens), max_length)]
+        
+            # Detokenize chunks back into strings
+            chunked_texts += [tokenizer.convert_tokens_to_string(chunk) for chunk in chunks]
+    else:
+        # Tokenize the input text
+        tokens = tokenizer.tokenize(text)
+        
+        # Split the tokens into chunks
+        chunks = [tokens[i:i + max_length] for i in range(0, len(tokens), max_length)]
+        
+        # Detokenize chunks back into strings
+        chunked_texts = [tokenizer.convert_tokens_to_string(chunk) for chunk in chunks]
+    
+    return chunked_texts
+
+def generate_medbert_vector_embeddings(text: list[str], tokenizer: BertTokenizer, model: BertModel):
+
+    if len(text) == 0:
+        return []
 
     encoded_input = tokenizer(text, padding=True, truncation=True, max_length=512, return_tensors="pt")
 
-    if encoded_input["input_ids"].shape[1] >= 512:
-        print(f"TRUNCATING text")
-        truncation_counter += 1
+    # if encoded_input["input_ids"].shape[1] > 512:
+    #     print(f"TRUNCATING text. {encoded_input["input_ids"].shape}")
+    #     truncation_counter += 1
 
             # print(f"TOKEN TYPE IDS - {encoded_input["token_type_ids"].shape}")
             # print(f"ATTENTION MASK - {encoded_input["attention_mask"].shape}")
@@ -838,22 +888,45 @@ def generate_medbert_vector_embeddings(text, tokenizer, vector_model):
 
             #     print(tokenizer.tokenize(marked_text))
 
-    outputs = vector_model(**encoded_input)
+    with torch.no_grad():
+        outputs = model(**encoded_input)
+        hidden_states = outputs.last_hidden_state
 
-    hidden_states = torch.stack(outputs[2])
+    # Using the [CLS] token embeddings for each input in the batch
+    cls_embeddings = hidden_states[:, 0, :]  # Extract the [CLS] token representations
+    # print("CLS Embeddings Shape:", cls_embeddings.shape)  # Shape: (batch_size, hidden_size)
 
-            # take the last 4 hidden states
-            # concat the 4 x 768 tokens to give 3072
-            # average out the values for each token & then sentence
-            # to give a final 3072 single dimension tensor
+    # Mean pooling: Compute the mean of all [CLS] embeddings
+    mean_pooled_embedding = torch.mean(cls_embeddings, dim=0)
+    # print("Mean Pooled Embedding Shape:", mean_pooled_embedding.shape)  # Shape: (hidden_size,)
 
-    cat_vec = torch.cat((hidden_states[-1], hidden_states[-2], hidden_states[-3], hidden_states[-4]), dim=2)
+    # Max pooling
+    max_pooled_embedding = torch.max(cls_embeddings, dim=0).values
+    # print("Max Pooled Embedding Shape:", max_pooled_embedding.shape)  # Shape: (hidden_size,)
 
-    avg_sentence = torch.mean(cat_vec, dim=0)
+    # Min pooling
+    min_pooled_embedding = torch.min(cls_embeddings, dim=0).values
+    # print("Min Pooled Embedding Shape:", min_pooled_embedding.shape)  # Shape: (hidden_size,)
 
-    avg_content = torch.mean(avg_sentence,dim=0)
+    # Concatenate mean, max, and min pooled embeddings
+    concatenated_embedding = torch.cat((mean_pooled_embedding, max_pooled_embedding, min_pooled_embedding), dim=0)
+    # print("Concatenated Embedding Shape:", concatenated_embedding.shape)  # Shape: (3 * hidden_size,)
 
-    return avg_content.detach().tolist()
+    return concatenated_embedding.tolist()
+
+def generate_bert_vector_embeddings(text: str, tokenizer: BertTokenizer, model: BertModel):
+
+    encoded_input = tokenizer(text, padding=True, truncation=True, max_length=512, return_tensors="pt")
+
+    with torch.no_grad():
+        outputs = model(**encoded_input)
+        hidden_states = outputs.last_hidden_state
+
+    # Using the [CLS] token embeddings for each input in the batch
+    cls_embeddings = hidden_states[:, 0, :]  # Extract the [CLS] token representations
+    print("CLS Embeddings Shape:", cls_embeddings.shape)  # Shape: (batch_size, hidden_size)
+
+    return cls_embeddings.squeeze().tolist()
 
 def create_search_index_nhs_medbert_data() -> bool:
     print(type(AZURE_SEARCH_SERVICE_ENDPOINT))
@@ -884,41 +957,41 @@ def create_search_index_nhs_medbert_data() -> bool:
                     name="title_vector",
                     type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                     searchable=True,
-                    vector_search_dimensions=3072,
+                    vector_search_dimensions=2304,
                     vector_search_profile_name="knn-vector-profile"
                 ),
                 SearchField(
                     name="description_vector",
                     type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                     searchable=True,
-                    vector_search_dimensions=3072,
+                    vector_search_dimensions=2304,
                     vector_search_profile_name="knn-vector-profile"
                 ),
                 SearchField(
                     name="aspect_headers_vector",
                     type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                     searchable=True,
-                    vector_search_dimensions=3072,
+                    vector_search_dimensions=2304,
                     vector_search_profile_name="knn-vector-profile"
                 ),
                 SearchField(
                     name="short_descriptions_vector",
                     type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                     searchable=True,
-                    vector_search_dimensions=3072,
+                    vector_search_dimensions=2304,
                     vector_search_profile_name="knn-vector-profile"
                 ),
                 SearchField(
                     name="content_vector",
                     type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
                     searchable=True,
-                    vector_search_dimensions=3072,
+                    vector_search_dimensions=2304,
                     vector_search_profile_name="knn-vector-profile"
                 ),
                 SearchField(
                     name="keywords",
                     type=SearchFieldDataType.Collection(SearchFieldDataType.String),
-                    searchable=False
+                    searchable=True
                 ),
                 SearchField(
                     name="content_types",
@@ -984,19 +1057,12 @@ def create_search_index_nhs_medbert_data() -> bool:
                     name="title_weighted",
                     text_weights=TextWeights(
                         weights={
-                            "title": 2.0,
-                            "description": 1.75,
+                            "title": 10.0,
+                            "keywords": 5.0,
+                            "description": 2.0,
                             "aspect_headers": 1.5,
                             "short_descriptions": 1.25,
-                            })),
-                ScoringProfile(
-                    name="title_weighted_100",
-                    text_weights=TextWeights(
-                        weights={
-                            "title": 100.0,
-                            "description": 1.75,
-                            "aspect_headers": 1.5,
-                            "short_descriptions": 1.25,
+                            "content": 1.0
                             }))
             ]
         )
@@ -1439,11 +1505,279 @@ def populate_search_index_nhs_msh():
 
         print(f"Uploaded {len(items)} documents to index '{AZURE_SEARCH_NHS_MSH_INDEX_NAME}'")
 
-
 def create_and_populate_nhs_msh_index():
     created = create_search_index_nhs_msh()
     if created:
         populate_search_index_nhs_msh()
+
+def create_search_index_nhs_bert_base() -> bool:
+    print(type(AZURE_SEARCH_SERVICE_ENDPOINT))
+    index_client = SearchIndexClient(
+        endpoint=AZURE_SEARCH_SERVICE_ENDPOINT,
+        credential=azure_credential,
+    )
+    create_synonym_map(index_client, synonym_map_name="test-sm")
+
+    if AZURE_SEARCH_NHS_BERT_BASE_INDEX_NAME not in index_client.list_index_names():
+        index = SearchIndex(
+            name=AZURE_SEARCH_NHS_BERT_BASE_INDEX_NAME,
+            fields=[
+                SimpleField(
+                    name="id",
+                    type=SearchFieldDataType.String,
+                    key=True,
+                    filterable=True,
+                    sortable=True,
+                    facetable=True,
+                ),
+                SearchableField(name="title", type=SearchFieldDataType.String, synonym_map_names=["test-sm"]),
+                SearchableField(name="description", type=SearchFieldDataType.String, synonym_map_names=["test-sm"]),
+                SearchField(
+                    name="title_vector",
+                    type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
+                    searchable=True,
+                    vector_search_dimensions=768,
+                    vector_search_profile_name="knn-vector-profile"
+                ),
+                SearchField(
+                    name="description_vector",
+                    type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
+                    searchable=True,
+                    vector_search_dimensions=768,
+                    vector_search_profile_name="knn-vector-profile"
+                ),
+                SearchField(
+                    name="keywords",
+                    type=SearchFieldDataType.Collection(SearchFieldDataType.String),
+                    searchable=True
+                ),
+                SearchField(
+                    name="content_types",
+                    type=SearchFieldDataType.Collection(SearchFieldDataType.String),
+                    searchable=False,
+                    filterable=True,
+                    sortable=False,
+                    facetable=True
+                ),
+                SimpleField(
+                    name="url",
+                    type=SearchFieldDataType.String,
+                    key=False,
+                    searchable=False,
+                    filterable=False,
+                    sortable=False,
+                    facetable=False,
+                )
+            ],
+            vector_search=VectorSearch(
+                algorithms=[ExhaustiveKnnAlgorithmConfiguration(name="exhaustiveKnn")],
+                profiles=[VectorSearchProfile(
+                    name="knn-vector-profile",
+                    algorithm_configuration_name="exhaustiveKnn")]
+            ),
+            semantic_search=SemanticSearch(
+                configurations=[
+                    SemanticConfiguration(
+                        name="default-semantic-config",
+                        prioritized_fields=SemanticPrioritizedFields(
+                            title_field=SemanticField(field_name="title"),
+                            content_fields=[
+                                SemanticField(field_name="description")
+                            ]
+                        ),
+                    ),
+                    SemanticConfiguration(
+                        name="semantic-config-content",
+                        prioritized_fields=SemanticPrioritizedFields(
+                            title_field=SemanticField(field_name="title"),
+                            content_fields=[
+                                SemanticField(field_name="description")
+                            ]
+                        ),
+                    ),
+                    SemanticConfiguration(
+                        name="semantic-config-keywords",
+                        prioritized_fields=SemanticPrioritizedFields(
+                            title_field=SemanticField(field_name="title"),
+                            content_fields=[
+                                SemanticField(field_name="description")
+                            ],
+                            keywords_fields=[
+                                SemanticField(field_name="keywords")
+                            ]
+                        ),
+                    )
+                ]
+            ),
+            scoring_profiles=[
+                ScoringProfile(
+                    name="title_weighted",
+                    text_weights=TextWeights(
+                        weights={
+                            "title": 5.0,
+                            "keywords": 2.0,
+                            "description": 1.0
+                            }))
+            ]
+        )
+        print(f"Creating {AZURE_SEARCH_NHS_BERT_BASE_INDEX_NAME} search index")
+        index_client.create_index(index)
+        return True
+    else:
+        print(f"Search index {AZURE_SEARCH_NHS_BERT_BASE_INDEX_NAME} already exists")
+        return True
+
+def populate_search_index_nhs_bert_base():
+    print(f"Populating search index {AZURE_SEARCH_NHS_BERT_BASE_INDEX_NAME} with documents")
+
+    search_client = SearchClient(
+        endpoint=AZURE_SEARCH_SERVICE_ENDPOINT,
+        credential=azure_credential,
+        index_name=AZURE_SEARCH_NHS_BERT_BASE_INDEX_NAME,
+    )
+
+    model_name = "bert-base-uncased"
+    model = AutoModel.from_pretrained(model_name)
+    kw_model = KeyBERT(model=model)
+
+    # Load BERT tokenizer and model
+    tokenizer = BertTokenizer.from_pretrained(model_name, do_lower_case=True)
+    vector_model = BertModel.from_pretrained(model_name, output_hidden_states = True)
+    vector_model.eval()
+
+    processed_item_ids = []
+
+    try:
+        with open("bert_base_item_ids.json", encoding="utf-8") as f:
+            processed_item_ids = [line.rstrip() for line in f]
+
+        print(processed_item_ids)
+
+    except:
+        print("processed item ids file not found")
+
+    for file_name in ["data/conditions_1.json", "data/medicines_1.json", "data/articles_1.json"]:
+
+        with open(file_name, "r", encoding="utf-8") as file:
+            items = json.load(file)
+
+        print(f"loaded {len(items)} items from {file_name}")
+
+        batched_treated_items = []
+        batch_size = 12
+
+        for item in items:
+
+            item_id = item["url_path"].strip('/').replace("/", "_").replace("â","a").replace("ŷ","y")
+
+            if item_id in processed_item_ids:
+                print(f"{item_id} already exists. Skipping...")
+                continue
+
+            try:
+                existing_doc = search_client.get_document(item_id, ["id"])
+
+                print(f"{existing_doc["id"]} already exists. Skipping...")
+
+                with open("medbert_item_ids.json", 'a') as f: 
+                    f.write(item_id + '\n') 
+
+                continue
+            except ResourceNotFoundError:
+                print(f"Adding entry for {item_id}")
+
+            treated_item = {
+                "id": item_id,
+                "title": item["title"],
+                "description": item["description"],
+                "content_types": item["content_types"],
+                "url": item["url_path"]
+            }
+
+            aspect_headers = []
+            short_descriptions = []
+            rich_text_content = []
+
+            all_content = ""
+
+            for c in item["content"]:
+
+                aspect_header = clean_text(c["value"]["aspect_header"])
+
+                if len(aspect_header) > 0:
+                    aspect_headers.append(aspect_header)
+
+                short_description = c["value"]["short_description"]
+
+                if len(short_description) > 0:
+                    short_descriptions.append(short_description)
+
+                for inner_c in c["value"]["content"]:
+
+                    if inner_c["type"] == "richtext":
+
+                        content = clean_text(inner_c["value"])
+
+                        rich_text_content.append(content)
+
+                        if len(all_content) == 0:
+                            all_content = content
+                        else:
+                            all_content += " " + content
+
+            if len(aspect_headers) > 0:
+                treated_item["aspect_headers"] = aspect_headers
+
+            if len(short_descriptions) > 0:
+                treated_item["short_descriptions"] = short_descriptions
+
+            if len(rich_text_content) > 0:
+                treated_item["content"] = rich_text_content
+
+            treated_item["keywords"] = get_keywords(kw_model, treated_item)
+
+            if "aspect_headers" in treated_item:
+                del treated_item["aspect_headers"]
+
+            if "short_descriptions" in treated_item:
+                del treated_item["short_descriptions"]
+
+            if "content" in treated_item:
+                del treated_item["content"]
+
+            get_text_embeddings_bert(
+                text_property_names=["title", "description"],
+                vector_property_names=["title_vector", "description_vector"],
+                item=treated_item,
+                vector_model=vector_model,
+                tokenizer=tokenizer
+            )
+
+            batched_treated_items.append(treated_item)
+
+            print(f"Successfully generated embedding for: {treated_item['title']}")
+
+            if len(batched_treated_items) >= batch_size:
+
+                print(f"Uploading batch of {len(batched_treated_items)} items ...")
+
+                search_client.upload_documents(batched_treated_items)
+
+                batched_treated_items.clear()
+        
+        if len(batched_treated_items) > 0:
+
+            print(f"Uploading final batch of {len(batched_treated_items)} items ...")
+            search_client.upload_documents(batched_treated_items)
+
+        print(f"Uploaded {len(items)} documents to index '{AZURE_SEARCH_NHS_BERT_BASE_INDEX_NAME}'")
+
+
+def create_and_populate_nhs_bert_base_index():
+    created = create_search_index_nhs_bert_base()
+    if created:
+        populate_search_index_nhs_bert_base()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -1465,9 +1799,14 @@ if __name__ == "__main__":
     # Create result db schema
     publish_results_db_schema()
 
+    # Create NHS bert index
+    if args.recreate:
+        delete_search_index(AZURE_SEARCH_NHS_BERT_BASE_INDEX_NAME)
+    create_and_populate_nhs_bert_base_index()
+
     # Create NHS combined data set index
     if args.recreate:
-        delete_search_index(AZURE_SEARCH_NHS_COMBINED_INDEX_NAME)
+      delete_search_index(AZURE_SEARCH_NHS_COMBINED_INDEX_NAME)
     create_and_populate_nhs_combined_data_index()
 
     # Create NHS conditions index
@@ -1480,9 +1819,9 @@ if __name__ == "__main__":
         delete_search_index(AZURE_SEARCH_NHS_MEDBERT_INDEX_NAME)
     create_and_populate_nhs_medbert_data_index()
 
-    # # Create NHS MSH index
-    # if args.recreate:
-    #     delete_search_index(AZURE_SEARCH_NHS_MSH_INDEX_NAME)
-    # create_and_populate_nhs_msh_index()
+    # Create NHS MSH index
+    if args.recreate:
+        delete_search_index(AZURE_SEARCH_NHS_MSH_INDEX_NAME)
+    create_and_populate_nhs_msh_index()
  
     print("Completed successfully")
